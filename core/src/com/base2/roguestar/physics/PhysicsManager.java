@@ -14,7 +14,9 @@ import com.base2.roguestar.utils.Config;
  */
 public class PhysicsManager {
 
-    private final float TIME_STEP = 1 / 60f;
+    // for fixed time step simulation
+    private float accum = 0;
+    private int iterations = 0;
     private final int VELOCITY_ITERATIONS = 8;
     private final int POSITION_ITERATIONS = 3;
 
@@ -26,12 +28,13 @@ public class PhysicsManager {
 
     public void init() {
 
-        world = new World(new Vector2(0, 0), true);
-        debugRenderer = new Box2DDebugRenderer();
+        world = new World(new Vector2(0, -25.0f), true);
+        world.setContactListener(new CollisionHandler());
+        //debugRenderer = new Box2DDebugRenderer();
         deathRow.clear();
     }
 
-    public void update() {
+    public void update(float delta) {
 
         // remove any bodies from the world flagged for removal
         for (Body b: deathRow) {
@@ -40,7 +43,13 @@ public class PhysicsManager {
         deathRow.clear();
 
         // step the physics simulation
-        world.step(TIME_STEP, VELOCITY_ITERATIONS, POSITION_ITERATIONS);
+        accum += delta;
+        iterations = 0;
+        while (accum > Config.FIXED_TIME_STEP && iterations < Config.MAX_UPDATE_ITERATIONS) {
+            world.step(Config.FIXED_TIME_STEP, VELOCITY_ITERATIONS, POSITION_ITERATIONS);
+            accum -= Config.FIXED_TIME_STEP;
+            iterations++;
+        }
     }
 
     public void debugRender(OrthographicCamera camera) {
@@ -48,6 +57,7 @@ public class PhysicsManager {
         // we need to scale the camera matrix by the pixels per meter value to make the scales
         // match and render the debug draw correctly over the tiled campaign.
         combined.set(camera.combined).scl(Config.PIXELS_PER_METER);
+        //combined.set(camera.combined);
         debugRenderer.render(world, combined);
     }
 

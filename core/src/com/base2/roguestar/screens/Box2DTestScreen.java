@@ -30,7 +30,7 @@ public class Box2DTestScreen implements Screen {
     @Override
     public void show() {
 
-        physicsWorld = new World(new Vector2(0, 0), true);
+        physicsWorld = new World(new Vector2(0, -10.0f), true);
 
         renderer = new Box2DDebugRenderer();
 
@@ -53,7 +53,7 @@ public class Box2DTestScreen implements Screen {
         Body body = physicsWorld.createBody(bodyDef);
         body.createFixture(fixtureDef);
 
-        player = new Player(new Sprite(new Texture("images/player.png")));
+       // player = new Player(new Sprite(new Texture("images/player.png")));
     }
 
     @Override

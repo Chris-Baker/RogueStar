@@ -8,14 +8,21 @@ import com.base2.roguestar.campaign.CampaignManager;
 import com.base2.roguestar.entities.EntityManager;
 import com.base2.roguestar.physics.PhysicsManager;
 import com.base2.roguestar.screens.PlayScreen;
+import com.base2.roguestar.utils.Config;
 
-public class RogueStar extends Game {
+public class RogueStarClient extends Game {
 
 	public final PhysicsManager physics = new PhysicsManager();
 	public final CampaignManager campaign = new CampaignManager();
 	public final EntityManager entities = new EntityManager();
 
 	public final OrthographicCamera camera = new OrthographicCamera();
+
+	private int type;
+
+	public RogueStarClient(int type) {
+		this.type = type;
+	}
 
 	@Override
 	public void create() {
@@ -32,8 +39,10 @@ public class RogueStar extends Game {
 	@Override
 	public void render() {
 
-		Gdx.gl20.glClearColor(0, 0, 0, 1);
-		Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		if (type != Config.SERVER) {
+			Gdx.gl20.glClearColor(0, 0, 0, 1);
+			Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		}
 
 		super.render();
 	}
