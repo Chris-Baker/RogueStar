@@ -8,21 +8,37 @@ import com.base2.roguestar.campaign.CampaignManager;
 import com.base2.roguestar.entities.EntityManager;
 import com.base2.roguestar.physics.PhysicsManager;
 import com.base2.roguestar.screens.PlayScreen;
-import com.base2.roguestar.utils.Config;
 
 public class RogueStarClient extends Game {
+
+	//	Client
+	//   - connect to the server
+	//
+	//	Pre game screen
+	//   - show screen
+	//   - choose class
+	//   - updated weapons and equipment
+	//   - click ready or cancel game
+	//   - transition screen to loading
+	//
+	//	Loading screen
+	//   - show screen
+	//   - get the name of the map to load from the server
+	//   - load the map and create the physics simulation for static bodies only
+	//   - sync simulation and entities with the server
+	//   - once everything is constructed and the server has signaled ready
+	//	then tell the server player is ready and give the user ready feedback
+	//   - show other player loading progress
+	//   - transition screen to play
+	//
+	//	Game screen
+	//   - handle movement updates from server
 
 	public final PhysicsManager physics = new PhysicsManager();
 	public final CampaignManager campaign = new CampaignManager();
 	public final EntityManager entities = new EntityManager();
 
 	public final OrthographicCamera camera = new OrthographicCamera();
-
-	private int type;
-
-	public RogueStarClient(int type) {
-		this.type = type;
-	}
 
 	@Override
 	public void create() {
@@ -39,10 +55,8 @@ public class RogueStarClient extends Game {
 	@Override
 	public void render() {
 
-		if (type != Config.SERVER) {
-			Gdx.gl20.glClearColor(0, 0, 0, 1);
-			Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		}
+		Gdx.gl20.glClearColor(0, 0, 0, 1);
+		Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 		super.render();
 	}

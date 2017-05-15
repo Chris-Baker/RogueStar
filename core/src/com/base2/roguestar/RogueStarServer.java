@@ -17,6 +17,29 @@ import java.io.IOException;
 
 public class RogueStarServer extends ApplicationAdapter {
 
+	//	Server
+	//	Pre game state
+	//   - start up listener
+	//   - accept up to 4 player connections
+	//   - for each connection create a player object and share it with all connections
+	//   - with the player object track each player connection so if they disconnect and reconnect they will persist
+	//   - listen for player class selections
+	//   - listen for weapon and equipment upgrades
+	//   - listen for all players ready
+	//   - if players disconnect from this state then remove them and delete their player object
+	//	any point after this disconnected players will go through the loading state and be added
+	//	back into play from where they where previously
+	//	Loading game state
+	//   - load the map and create the physic simulation and entities
+	//   - spawn an entity for each player
+	//   - signal that the server is ready
+	//   - once all clients have signaled they are ready start the game
+	//   - tell clients to start the game
+	//
+	//	Game state
+	//   - handle player input
+	//   - update all players with movement and events
+
 	public final PhysicsManager physics = new PhysicsManager();
 	public final CampaignManager campaign = new CampaignManager();
 	public final EntityManager entities = new EntityManager();
@@ -27,6 +50,8 @@ public class RogueStarServer extends ApplicationAdapter {
 	private Simulation simulation;
 
 	private Server server;
+
+	private GameState gameState = GameState.SETUP;
 
 	@Override
 	public void create () {

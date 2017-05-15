@@ -45,9 +45,9 @@ public class PhysicsManager {
         // step the physics simulation
         accum += delta;
         iterations = 0;
-        while (accum > Config.FIXED_TIME_STEP && iterations < Config.MAX_UPDATE_ITERATIONS) {
-            world.step(Config.FIXED_TIME_STEP, VELOCITY_ITERATIONS, POSITION_ITERATIONS);
-            accum -= Config.FIXED_TIME_STEP;
+        while (accum > Config.PHYSICS_TIME_STEP && iterations < Config.MAX_UPDATE_ITERATIONS) {
+            world.step(Config.PHYSICS_TIME_STEP, VELOCITY_ITERATIONS, POSITION_ITERATIONS);
+            accum -= Config.PHYSICS_TIME_STEP;
             iterations++;
         }
     }

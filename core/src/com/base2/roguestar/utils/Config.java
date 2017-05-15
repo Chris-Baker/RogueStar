@@ -5,11 +5,8 @@ package com.base2.roguestar.utils;
  */
 public class Config {
 
-    public static final int CLIENT = 0;
-    public static final int SERVER = 1;
-
     public static final float PIXELS_PER_METER = 16;
 
     public static final int MAX_UPDATE_ITERATIONS 	= 5;
-    public static final float FIXED_TIME_STEP = 1 / 60f;
+    public static final float PHYSICS_TIME_STEP = 1 / 60f;
 }
