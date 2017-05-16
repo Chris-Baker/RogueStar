@@ -10,7 +10,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.base2.roguestar.maps.MapManager;
 import com.base2.roguestar.entities.EntityManager;
-import com.base2.roguestar.network.Client;
+import com.base2.roguestar.network.NetworkClient;
 import com.base2.roguestar.network.messages.*;
 import com.base2.roguestar.physics.PhysicsManager;
 import com.base2.roguestar.physics.Simulation;
@@ -19,7 +19,7 @@ import com.base2.roguestar.screens.PlayScreen;
 
 public class RogueStarClient extends Game {
 
-	//	Client
+	//	NetworkClient
 	//   - connect to the server
 	//
 	//	Pre game screen
@@ -45,7 +45,7 @@ public class RogueStarClient extends Game {
 	public final PhysicsManager physics = new PhysicsManager();
 	public final MapManager campaign = new MapManager();
 	public final EntityManager entities = new EntityManager();
-	public final Client network = new Client();
+	public final NetworkClient network = new NetworkClient();
 
 	public final OrthographicCamera camera = new OrthographicCamera();
 
@@ -132,7 +132,7 @@ public class RogueStarClient extends Game {
 			while (index < unverifiedUpdates.size) {
 				SimulationSnapshot unverifiedUpdate = unverifiedUpdates.get(index);
 
-				if (unverifiedUpdate.timestamp <= (verifiedUpdate.timestamp) - network.ping + network.serverTimeAdjustment) {
+				if (unverifiedUpdate.timestamp <= (verifiedUpdate.timestamp) - network.getPing() + network.getServerTimeAdjustment()) {
 					unverifiedUpdates.removeIndex(index);
 				}
 				else {
@@ -155,7 +155,7 @@ public class RogueStarClient extends Game {
 		request.moveRight = this.moveRight;
 		request.jump = this.jump;
 
-		network.client.sendUDP(request);
+		network.sendUDP(request);
 
 		// render the world
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
