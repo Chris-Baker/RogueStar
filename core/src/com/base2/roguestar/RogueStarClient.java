@@ -43,7 +43,7 @@ public class RogueStarClient extends Game {
 	//   - handle movement updates from server
 
 	public final PhysicsManager physics = new PhysicsManager();
-	public final MapManager campaign = new MapManager();
+	public final MapManager maps = new MapManager();
 	public final EntityManager entities = new EntityManager();
 	public final NetworkClient network = new NetworkClient();
 
@@ -78,7 +78,16 @@ public class RogueStarClient extends Game {
 		unverifiedUpdates = new Array<SimulationSnapshot>();
 		verifiedUpdates = new Array<SimulationSnapshot>();
 
+		// kick off a game after the player has chosen map, class, and equipment
+		SetMapMessage request = new SetMapMessage();
+		request.mapName = "maps/map.tmx";
+		network.sendUDP(request);
 
+//        game.physics.init();
+//        game.entities.init(game);
+
+//        CollisionLoader.load(game.maps.getMap(), game.physics.world);
+//        EntityLoader.load(game.maps.getMap(), game.entities.engine, game.physics.world);
 
 	}
 

@@ -14,6 +14,7 @@ public class MapManager {
     public void load(String fileName) {
         loader = new TmxMapLoader();
         map = loader.load(fileName);
+        System.out.println(fileName + " loaded.");
     }
 
     public TiledMap getMap() {

@@ -41,7 +41,7 @@ public class RogueStarServer extends ApplicationAdapter {
 	//   - update all players with movement and events
 
 	public final PhysicsManager physics = new PhysicsManager();
-	public final MapManager campaign = new MapManager();
+	public final MapManager maps = new MapManager();
 	public final EntityManager entities = new EntityManager();
 
 	private static final float NETWORK_UPDATE_RATE = 1 / 10.0f;
@@ -69,6 +69,7 @@ public class RogueStarServer extends ApplicationAdapter {
 			kryo.register(SyncSimulationResponseMessage.class);
 			kryo.register(Ping.class);
 			kryo.register(Ack.class);
+			kryo.register(SetMapMessage.class);
 
 			server.start();
 			server.bind(54555, 54777);
@@ -109,6 +110,16 @@ public class RogueStarServer extends ApplicationAdapter {
 						if (request.moveRight) {
 							simulation.px += 1;
 						}
+					}
+					else if (object instanceof SetMapMessage) {
+						SetMapMessage request = (SetMapMessage) object;
+						final String mapName = request.mapName;
+						Gdx.app.postRunnable(new Runnable() {
+							public void run() {
+								maps.load(mapName);
+							}
+						});
+						server.sendToAllTCP(request);
 					}
 				}
 			}));
