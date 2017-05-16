@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.base2.roguestar.campaign.CampaignManager;
+import com.base2.roguestar.maps.MapManager;
 import com.base2.roguestar.entities.EntityManager;
 import com.base2.roguestar.network.Client;
 import com.base2.roguestar.network.messages.*;
@@ -43,7 +43,7 @@ public class RogueStarClient extends Game {
 	//   - handle movement updates from server
 
 	public final PhysicsManager physics = new PhysicsManager();
-	public final CampaignManager campaign = new CampaignManager();
+	public final MapManager campaign = new MapManager();
 	public final EntityManager entities = new EntityManager();
 	public final Client network = new Client();
 
@@ -86,7 +86,7 @@ public class RogueStarClient extends Game {
 	public void dispose() {
 		super.dispose();
 		//physics.dispose();
-		//campaign.dispose();
+		//maps.dispose();
 	}
 
 	@Override

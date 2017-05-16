@@ -50,7 +50,7 @@ public class PlayScreen implements Screen {
         //game.entities.update(delta);
         //game.physics.update(delta);
 
-        //game.campaign.render(game.camera);
+        //game.maps.render(game.camera);
         //game.physics.debugRender(game.camera);
     }
 
