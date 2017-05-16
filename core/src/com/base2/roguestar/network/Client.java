@@ -13,8 +13,8 @@ import java.io.IOException;
 public class Client {
 
     public com.esotericsoftware.kryonet.Client client;
-    long ping;
-    long serverTimeAdjustment;
+    public long ping;
+    public long serverTimeAdjustment;
 
     public void init(final RogueStarClient game) {
 

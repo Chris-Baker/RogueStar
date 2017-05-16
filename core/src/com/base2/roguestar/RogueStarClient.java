@@ -17,8 +17,6 @@ import com.base2.roguestar.physics.Simulation;
 import com.base2.roguestar.physics.SimulationSnapshot;
 import com.base2.roguestar.screens.PlayScreen;
 
-import java.io.IOException;
-
 public class RogueStarClient extends Game {
 
 	//	Client
@@ -50,11 +48,6 @@ public class RogueStarClient extends Game {
 	public final Client network = new Client();
 
 	public final OrthographicCamera camera = new OrthographicCamera();
-
-	// network
-	private Client client;
-	long ping;
-	long serverTimeAdjustment;
 
 	// simulation
 	public Simulation simulation;
@@ -139,7 +132,7 @@ public class RogueStarClient extends Game {
 			while (index < unverifiedUpdates.size) {
 				SimulationSnapshot unverifiedUpdate = unverifiedUpdates.get(index);
 
-				if (unverifiedUpdate.timestamp <= (verifiedUpdate.timestamp) - ping + serverTimeAdjustment) {
+				if (unverifiedUpdate.timestamp <= (verifiedUpdate.timestamp) - network.ping + network.serverTimeAdjustment) {
 					unverifiedUpdates.removeIndex(index);
 				}
 				else {
