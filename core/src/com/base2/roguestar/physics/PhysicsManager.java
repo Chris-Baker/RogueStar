@@ -55,7 +55,7 @@ public class PhysicsManager {
     public void debugRender(OrthographicCamera camera) {
         // the debug renderer and physics world work in meters, the camera matrix is in pixels
         // we need to scale the camera matrix by the pixels per meter value to make the scales
-        // match and render the debug draw correctly over the tiled campaign.
+        // match and render the debug draw correctly over the tiled maps.
         combined.set(camera.combined).scl(Config.PIXELS_PER_METER);
         //combined.set(camera.combined);
         debugRenderer.render(world, combined);

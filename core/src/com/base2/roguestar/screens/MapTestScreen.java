@@ -24,7 +24,7 @@ public class MapTestScreen implements Screen {
     @Override
     public void show() {
         TmxMapLoader loader = new TmxMapLoader();
-        map = loader.load("maps/campaign.tmx");
+        map = loader.load("maps/maps.tmx");
 
         renderer = new OrthogonalTiledMapRenderer(map);
 

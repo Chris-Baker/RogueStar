@@ -27,8 +27,8 @@ public class Client {
             kryo.register(PhysicsBodyMessage.class);
             kryo.register(SyncSimulationRequestMessage.class);
             kryo.register(SyncSimulationResponseMessage.class);
-            kryo.register(TimeRequestMessage.class);
-            kryo.register(TimeResponseMessage.class);
+            kryo.register(Ping.class);
+            kryo.register(Ack.class);
 
             client.start();
             client.connect(5000, "localhost", 54555, 54777);
@@ -36,14 +36,14 @@ public class Client {
             SyncSimulationRequestMessage syncRequest = new SyncSimulationRequestMessage();
             client.sendTCP(syncRequest);
 
-            TimeRequestMessage timeRequest = new TimeRequestMessage();
+            Ping timeRequest = new Ping();
             timeRequest.timestamp = TimeUtils.nanoTime();
             client.sendUDP(timeRequest);
 
             client.addListener(new Listener() {
                 public void received (Connection connection, Object object) {
-                    if (object instanceof TimeResponseMessage) {
-                        TimeResponseMessage response = (TimeResponseMessage)object;
+                    if (object instanceof Ack) {
+                        Ack response = (Ack)object;
                         ping = (TimeUtils.nanoTime() - response.clientSentTime);
                         serverTimeAdjustment = (response.timestamp - (ping)) - response.clientSentTime; // should this be ping / 2?
                         System.out.println("Ping: " + TimeUtils.nanosToMillis((ping)));

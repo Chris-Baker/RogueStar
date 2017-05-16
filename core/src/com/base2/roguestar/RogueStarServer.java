@@ -3,7 +3,7 @@ package com.base2.roguestar;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.base2.roguestar.campaign.CampaignManager;
+import com.base2.roguestar.maps.MapManager;
 import com.base2.roguestar.entities.EntityManager;
 import com.base2.roguestar.network.messages.*;
 import com.base2.roguestar.physics.PhysicsManager;
@@ -41,7 +41,7 @@ public class RogueStarServer extends ApplicationAdapter {
 	//   - update all players with movement and events
 
 	public final PhysicsManager physics = new PhysicsManager();
-	public final CampaignManager campaign = new CampaignManager();
+	public final MapManager campaign = new MapManager();
 	public final EntityManager entities = new EntityManager();
 
 	private static final float NETWORK_UPDATE_RATE = 1 / 10.0f;
@@ -67,8 +67,8 @@ public class RogueStarServer extends ApplicationAdapter {
 			kryo.register(PhysicsBodyMessage.class);
 			kryo.register(SyncSimulationRequestMessage.class);
 			kryo.register(SyncSimulationResponseMessage.class);
-			kryo.register(TimeRequestMessage.class);
-			kryo.register(TimeResponseMessage.class);
+			kryo.register(Ping.class);
+			kryo.register(Ack.class);
 
 			server.start();
 			server.bind(54555, 54777);
@@ -76,10 +76,10 @@ public class RogueStarServer extends ApplicationAdapter {
 			server.addListener(new Listener.LagListener(200, 200, new Listener() {
 				public void received (Connection connection, Object object) {
 
-					if (object instanceof TimeRequestMessage) {
-						TimeRequestMessage request = (TimeRequestMessage)object;
+					if (object instanceof Ping) {
+						Ping request = (Ping)object;
 
-						TimeResponseMessage response = new TimeResponseMessage();
+						Ack response = new Ack();
 						response.clientSentTime = request.timestamp;
 						response.timestamp = TimeUtils.nanoTime();
 						connection.sendUDP(response);
