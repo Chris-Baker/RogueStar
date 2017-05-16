@@ -18,13 +18,6 @@ public class PlayScreen implements Screen {
 
     @Override
     public void show() {
-
-        game.physics.init();
-        game.campaign.load();
-        game.entities.init(game);
-
-        CollisionLoader.load(game.campaign.map, game.physics.world);
-        EntityLoader.load(game.campaign.map, game.entities.engine, game.physics.world);
     }
 
     @Override
