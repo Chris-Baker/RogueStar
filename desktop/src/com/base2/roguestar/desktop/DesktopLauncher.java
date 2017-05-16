@@ -17,8 +17,6 @@ public class DesktopLauncher {
 
 
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		new LwjglApplication(new RogueStarClient(Config.CLIENT), config);
-
-		//new LwjglApplication(new PhysicsTest(), config);
+		new LwjglApplication(new RogueStarClient(), config);
 	}
 }
