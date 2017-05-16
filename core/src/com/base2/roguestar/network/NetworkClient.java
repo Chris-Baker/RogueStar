@@ -5,16 +5,17 @@ import com.base2.roguestar.RogueStarClient;
 import com.base2.roguestar.network.messages.*;
 import com.base2.roguestar.physics.SimulationSnapshot;
 import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
 import java.io.IOException;
 
-public class Client {
+public class NetworkClient {
 
-    public com.esotericsoftware.kryonet.Client client;
-    public long ping;
-    public long serverTimeAdjustment;
+    private Client client;
+    private long ping;
+    private long serverTimeAdjustment;
 
     public void init(final RogueStarClient game) {
 
@@ -47,7 +48,7 @@ public class Client {
                         ping = (TimeUtils.nanoTime() - response.clientSentTime);
                         serverTimeAdjustment = (response.timestamp - (ping)) - response.clientSentTime; // should this be ping / 2?
                         System.out.println("Ping: " + TimeUtils.nanosToMillis((ping)));
-                        System.out.println("Client Time: " + TimeUtils.nanosToMillis(TimeUtils.nanoTime()));
+                        System.out.println("NetworkClient Time: " + TimeUtils.nanosToMillis(TimeUtils.nanoTime()));
                         System.out.println("Server Time: " + TimeUtils.nanosToMillis((response.timestamp - (ping / 2))));
                         System.out.println("Difference: " + TimeUtils.nanosToMillis(serverTimeAdjustment));
                     }
@@ -73,6 +74,17 @@ public class Client {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    public long getPing() {
+        return ping;
+    }
+
+    public long getServerTimeAdjustment() {
+        return serverTimeAdjustment;
+    }
+
+    public void sendUDP(Message message) {
+        client.sendUDP(message);
     }
 }
