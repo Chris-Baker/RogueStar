@@ -1,26 +1,9 @@
 package com.base2.roguestar.screens;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.TimeUtils;
 import com.base2.roguestar.RogueStarClient;
-import com.base2.roguestar.network.messages.*;
-import com.base2.roguestar.physics.Simulation;
-import com.base2.roguestar.physics.SimulationSnapshot;
 import com.base2.roguestar.utils.CollisionLoader;
 import com.base2.roguestar.utils.EntityLoader;
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryonet.Client;
-import com.esotericsoftware.kryonet.Connection;
-import com.esotericsoftware.kryonet.Listener;
-
-import java.io.IOException;
 
 /**
  * Created by Chris on 19/03/2016.
@@ -37,7 +20,7 @@ public class PlayScreen implements Screen {
     public void show() {
 
         game.physics.init();
-        game.campaign.init();
+        game.campaign.load();
         game.entities.init(game);
 
         CollisionLoader.load(game.campaign.map, game.physics.world);
