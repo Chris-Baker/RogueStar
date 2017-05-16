@@ -9,11 +9,15 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 public class MapManager {
 
     private TmxMapLoader loader;
-    public TiledMap map;
+    private TiledMap map;
 
-    public void init() {
+    public void load(String fileName) {
         loader = new TmxMapLoader();
-        map = loader.load("maps/map.tmx");
+        map = loader.load(fileName);
+    }
+
+    public TiledMap getMap() {
+        return map;
     }
 
     public void dispose() {
