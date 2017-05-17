@@ -2,6 +2,7 @@ package com.base2.roguestar.network;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.base2.roguestar.GameState;
 import com.base2.roguestar.RogueStarClient;
 import com.base2.roguestar.maps.MapManager;
 import com.base2.roguestar.network.messages.*;
@@ -76,6 +77,7 @@ public class NetworkClient {
                         Gdx.app.postRunnable(new Runnable() {
                             public void run() {
                                 maps.load(mapName);
+                                game.setState(GameState.LOADING);
                             }
                         });
                     }
