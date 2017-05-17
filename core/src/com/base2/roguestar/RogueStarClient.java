@@ -16,6 +16,9 @@ import com.base2.roguestar.physics.PhysicsManager;
 import com.base2.roguestar.physics.Simulation;
 import com.base2.roguestar.physics.SimulationSnapshot;
 import com.base2.roguestar.screens.PlayScreen;
+import com.base2.roguestar.screens.SetupScreen;
+import com.base2.roguestar.utils.CollisionLoader;
+import com.base2.roguestar.utils.EntityLoader;
 
 public class RogueStarClient extends Game {
 
@@ -86,31 +89,28 @@ public class RogueStarClient extends Game {
 	private ShapeRenderer shapeRenderer;
 	//public final OrthographicCamera camera  = new OrthographicCamera(640, 480);
 
-	private GameState gameState = GameState.SETUP;
+	private GameState gameState = null;
 
 	@Override
 	public void create() {
 
-		setScreen(new PlayScreen(this));
+		setState(GameState.SETUP);
+		setScreen(new SetupScreen(this));
 
 		network.init(this);
+		physics.init();
+		entities.init(this);
 
-		shapeRenderer = new ShapeRenderer();
+		//shapeRenderer = new ShapeRenderer();
 		simulation = new Simulation();
 		previousFrame = new Simulation();
 		unverifiedUpdates = new Array<SimulationSnapshot>();
 		verifiedUpdates = new Array<SimulationSnapshot>();
 
-		// kick off a game after the player has chosen map, class, and equipment
+		// this should be moved to a player action as part of the setup phase
 		SetMapMessage request = new SetMapMessage();
 		request.mapName = "maps/map.tmx";
 		network.sendUDP(request);
-
-//        game.physics.init();
-//        game.entities.init(game);
-
-//        CollisionLoader.load(game.maps.getMap(), game.physics.world);
-//        EntityLoader.load(game.maps.getMap(), game.entities.engine, game.physics.world);
 
 	}
 
@@ -124,86 +124,136 @@ public class RogueStarClient extends Game {
 	@Override
 	public void render() {
 
-		Gdx.gl20.glClearColor(0, 0, 0, 1);
-		Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		float deltaTime = Gdx.graphics.getDeltaTime();
 
-		// get user input
-		this.moveLeft = Gdx.input.isKeyPressed(Input.Keys.A);
-		this.moveRight = Gdx.input.isKeyPressed(Input.Keys.D);
-		this.jump = Gdx.input.isKeyPressed(Input.Keys.SPACE);
+		// state specific update stuff
+		switch (gameState) {
 
-		// update our previous frame simulation so we can calculate the deltas of everything
-		previousFrame.px = simulation.px;
-		previousFrame.py = simulation.py;
+			case SETUP:
 
-		// update the simulation locally based on player input
-		if (this.moveLeft) {
-			simulation.px -= 1;
-		}
-		if (this.moveRight) {
-			simulation.px += 1;
-		}
+				// map is chosen by the game initiator and game is listed
+				// kick off a game after the player has chosen map, class, and equipment
 
-		// store our update as an unverified update
-		SimulationSnapshot updateDelta = new SimulationSnapshot();
-		updateDelta.timestamp = TimeUtils.nanoTime();
-		updateDelta.px = simulation.px - previousFrame.px;
-		updateDelta.py = simulation.py - previousFrame.py;
+				// player joins setup room
 
-		if (updateDelta.px != 0) {
-			unverifiedUpdates.add(updateDelta);
-		}
+				// player is configured with the server
 
-		// insert verified updates and reapply unverified updates
-		if (verifiedUpdates.size > 0) {
-			// get the timestamp of the verified update
-			verifiedUpdate = verifiedUpdates.pop();
-			verifiedUpdates.clear();
 
-			int index = 0;
-			while (index < unverifiedUpdates.size) {
-				SimulationSnapshot unverifiedUpdate = unverifiedUpdates.get(index);
+				// wait for user to click ready
 
-				if (unverifiedUpdate.timestamp <= (verifiedUpdate.timestamp) - network.getPing() + network.getServerTimeAdjustment()) {
-					unverifiedUpdates.removeIndex(index);
+				// wait for server to signal all ready
+
+				break;
+
+			case LOADING:
+
+				// network client initiates the map load and game state change in message handler
+				// server sends map to load
+				// load map
+
+				// load static collision bodies
+				CollisionLoader.load(maps.getMap(), physics.world);
+
+				// server sends entities to load but for now we can just trust local data
+				EntityLoader.load(maps.getMap(), entities.engine, physics.world);
+
+				// we need to know which entities are the players
+
+				// we need to know which entity ID is the local player
+
+				// server signals map loaded
+				// we can just set the state for now
+				setState(GameState.PLAYING);
+				setScreen(new PlayScreen(this));
+
+				break;
+
+			case PLAYING:
+
+				// update entities and physics world
+				this.entities.update(deltaTime);
+				this.physics.update(deltaTime);
+
+				// update our previous frame simulation so we can calculate the deltas of everything
+				previousFrame.px = simulation.px;
+				previousFrame.py = simulation.py;
+
+				// update the simulation locally based on player input
+				if (this.moveLeft) {
+					simulation.px -= 1;
 				}
-				else {
-					verifiedUpdate.px += unverifiedUpdate.px;
-					verifiedUpdate.py += unverifiedUpdate.py;
-					index += 1;
+				if (this.moveRight) {
+					simulation.px += 1;
 				}
-			}
 
-			// apply that to the simulation for rendering
-			simulation.px = verifiedUpdate.px;
-			simulation.py = verifiedUpdate.py;
+				// store our update as an unverified update
+				SimulationSnapshot updateDelta = new SimulationSnapshot();
+				updateDelta.timestamp = TimeUtils.nanoTime();
+				updateDelta.px = simulation.px - previousFrame.px;
+				updateDelta.py = simulation.py - previousFrame.py;
 
+				if (updateDelta.px != 0) {
+					unverifiedUpdates.add(updateDelta);
+				}
+
+				// insert verified updates and reapply unverified updates
+				if (verifiedUpdates.size > 0) {
+					// get the timestamp of the verified update
+					verifiedUpdate = verifiedUpdates.pop();
+					verifiedUpdates.clear();
+
+					int index = 0;
+					while (index < unverifiedUpdates.size) {
+						SimulationSnapshot unverifiedUpdate = unverifiedUpdates.get(index);
+
+						if (unverifiedUpdate.timestamp <= (verifiedUpdate.timestamp) - network.getPing() + network.getServerTimeAdjustment()) {
+							unverifiedUpdates.removeIndex(index);
+						}
+						else {
+							verifiedUpdate.px += unverifiedUpdate.px;
+							verifiedUpdate.py += unverifiedUpdate.py;
+							index += 1;
+						}
+					}
+
+					// apply that to the simulation for rendering
+					simulation.px = verifiedUpdate.px;
+					simulation.py = verifiedUpdate.py;
+
+				}
+
+				// create network request to send player control inputs
+				CharacterControllerMessage request = new CharacterControllerMessage();
+				request.timestamp = TimeUtils.nanoTime();
+				request.moveLeft = this.moveLeft;
+				request.moveRight = this.moveRight;
+				request.jump = this.jump;
+
+				network.sendUDP(request);
+
+				// render the world
+				Gdx.gl20.glClearColor(0, 0, 0, 1);
+				Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
+//				camera.update();
+//				shapeRenderer.setProjectionMatrix(camera.combined);
+//
+//				shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+//				shapeRenderer.setColor(1, 1, 0, 1);
+//				shapeRenderer.rect(simulation.px, simulation.py, 32, 32);
+//				if (verifiedUpdate != null) {
+//					shapeRenderer.setColor(0, 1, 0, 1);
+//					shapeRenderer.rect(verifiedUpdate.px, verifiedUpdate.py, 32, 32);
+//				}
+//				shapeRenderer.end();
+
+				break;
+
+			case FINISHED:
+
+				break;
 		}
 
-		// create network request to send player control inputs
-		CharacterControllerMessage request = new CharacterControllerMessage();
-		request.timestamp = TimeUtils.nanoTime();
-		request.moveLeft = this.moveLeft;
-		request.moveRight = this.moveRight;
-		request.jump = this.jump;
-
-		network.sendUDP(request);
-
-		// render the world
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-		camera.update();
-		shapeRenderer.setProjectionMatrix(camera.combined);
-
-		shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-		shapeRenderer.setColor(1, 1, 0, 1);
-		shapeRenderer.rect(simulation.px, simulation.py, 32, 32);
-		if (verifiedUpdate != null) {
-			shapeRenderer.setColor(0, 1, 0, 1);
-			shapeRenderer.rect(verifiedUpdate.px, verifiedUpdate.py, 32, 32);
-		}
-		shapeRenderer.end();
-
-
+		// render the screen
 		super.render();
 	}
 
@@ -227,7 +277,29 @@ public class RogueStarClient extends Game {
 	}
 
 	public void setState(GameState state) {
+
 		this.gameState = state;
+
+		// on enter state stuff
+		switch (gameState) {
+
+			case SETUP:
+				System.out.println("Set state: Setup");
+				break;
+
+			case LOADING:
+				System.out.println("Set state: Loading");
+				break;
+
+			case PLAYING:
+				System.out.println("Set state: Playing");
+				break;
+
+			case FINISHED:
+				System.out.println("Set state: Finished");
+				break;
+		}
+
 	}
 
 }

@@ -30,7 +30,7 @@ public class PhysicsManager {
 
         world = new World(new Vector2(0, -25.0f), true);
         world.setContactListener(new CollisionHandler());
-        //debugRenderer = new Box2DDebugRenderer();
+        debugRenderer = new Box2DDebugRenderer();
         deathRow.clear();
     }
 

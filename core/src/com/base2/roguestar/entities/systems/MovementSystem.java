@@ -52,7 +52,7 @@ public class MovementSystem extends IteratingSystem {
         Vector2 vel = body.getLinearVelocity();
         Vector2 pos = body.getPosition();
 
-        System.out.println(p.isGrounded);
+        //System.out.println(p.isGrounded);
 
 //        if (p.isGrounded) {
 //            lastGroundTime = System.nanoTime();
