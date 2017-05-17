@@ -19,6 +19,27 @@ import com.base2.roguestar.screens.PlayScreen;
 
 public class RogueStarClient extends Game {
 
+	// build a very basic set of screens which map one to one with the major game states
+	// the screens should just be dumb views so that the server can more easily remain separated.
+
+	// 1. setup screen
+	//    this screen will be replaced by the whole splash screen and menu screens for options and
+	//    creating joining games. This will just have a single button to say the player is ready which
+	//    will hard code a bunch of options which will later be player driven such as the map to load
+	//    class and equipment. When the user clicks the ready button the server it notified and the game
+	//    state is transitioned once all players are ready.
+
+	// 2. loading screen
+	//	  this screen shows loading animation whilst the game assets are loaded and the simulation is synced
+	//    with the server and all other players.
+	//    look at previous implementation of async asset loader
+
+	// 3. play screen
+	//    the simulation is updated by user input and the server and the game world is rendered
+
+
+
+
 	//	NetworkClient
 	//   - connect to the server
 	//
@@ -64,6 +85,8 @@ public class RogueStarClient extends Game {
 	// render
 	private ShapeRenderer shapeRenderer;
 	//public final OrthographicCamera camera  = new OrthographicCamera(640, 480);
+
+	private GameState gameState = GameState.SETUP;
 
 	@Override
 	public void create() {
@@ -202,4 +225,9 @@ public class RogueStarClient extends Game {
 	public void resume() {
 		super.resume();
 	}
+
+	public void setState(GameState state) {
+		this.gameState = state;
+	}
+
 }
