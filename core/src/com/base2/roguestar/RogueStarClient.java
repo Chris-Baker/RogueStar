@@ -107,18 +107,13 @@ public class RogueStarClient extends Game {
 		unverifiedUpdates = new Array<SimulationSnapshot>();
 		verifiedUpdates = new Array<SimulationSnapshot>();
 
-		// this should be moved to a player action as part of the setup phase
-		SetMapMessage request = new SetMapMessage();
-		request.mapName = "maps/map.tmx";
-		network.sendUDP(request);
-
 	}
 
 	@Override
 	public void dispose() {
 		super.dispose();
-		//physics.dispose();
-		//maps.dispose();
+		physics.dispose();
+		maps.dispose();
 	}
 
 	@Override
