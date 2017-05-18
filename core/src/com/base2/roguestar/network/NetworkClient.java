@@ -20,6 +20,9 @@ public class NetworkClient {
     private long ping;
     private long serverTimeAdjustment;
 
+    private static final float PING_RATE = 1 / 10.0f;
+    private float accum = 0;
+
     public void init(final RogueStarClient game) {
 
         final MapManager maps = game.maps;
@@ -88,6 +91,18 @@ public class NetworkClient {
         }
     }
 
+    public void update(float deltaTime) {
+
+        accum += Gdx.graphics.getDeltaTime();
+
+        if (accum >= PING_RATE) {
+            accum = 0;
+            Ping ping = new Ping();
+            client.sendUDP(ping);
+        }
+
+    }
+
     public long getPing() {
         return ping;
     }
@@ -98,5 +113,9 @@ public class NetworkClient {
 
     public void sendUDP(Message message) {
         client.sendUDP(message);
+    }
+
+    public void sendTCP(Message message) {
+        client.sendTCP(message);
     }
 }

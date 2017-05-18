@@ -170,13 +170,14 @@ public class RogueStarClient extends Game {
 
 			case PLAYING:
 
-				// update entities and physics world
-				this.entities.update(deltaTime);
-				this.physics.update(deltaTime);
-
-				// update our previous frame simulation so we can calculate the deltas of everything
+				// store our previous frame simulation so we can calculate the deltas of everything
 				previousFrame.px = simulation.px;
 				previousFrame.py = simulation.py;
+
+				// update managers
+				this.entities.update(deltaTime);
+				this.physics.update(deltaTime);
+				this.network.update(deltaTime);
 
 				// update the simulation locally based on player input
 				if (this.moveLeft) {
@@ -229,22 +230,7 @@ public class RogueStarClient extends Game {
 				request.moveRight = this.moveRight;
 				request.jump = this.jump;
 
-				network.sendUDP(request);
-
-				// render the world
-				Gdx.gl20.glClearColor(0, 0, 0, 1);
-				Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
-//				camera.update();
-//				shapeRenderer.setProjectionMatrix(camera.combined);
-//
-//				shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-//				shapeRenderer.setColor(1, 1, 0, 1);
-//				shapeRenderer.rect(simulation.px, simulation.py, 32, 32);
-//				if (verifiedUpdate != null) {
-//					shapeRenderer.setColor(0, 1, 0, 1);
-//					shapeRenderer.rect(verifiedUpdate.px, verifiedUpdate.py, 32, 32);
-//				}
-//				shapeRenderer.end();
+				network.sendTCP(request);
 
 				break;
 
@@ -252,6 +238,9 @@ public class RogueStarClient extends Game {
 
 				break;
 		}
+
+		Gdx.gl20.glClearColor(0, 0, 0, 1);
+		Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 		// render the screen
 		super.render();
