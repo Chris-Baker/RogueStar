@@ -93,7 +93,7 @@ public class NetworkClient {
 
     public void update(float deltaTime) {
 
-        accum += Gdx.graphics.getDeltaTime();
+        accum += deltaTime;
 
         if (accum >= PING_RATE) {
             accum = 0;
