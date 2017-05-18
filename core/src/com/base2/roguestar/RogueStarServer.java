@@ -79,7 +79,6 @@ public class RogueStarServer extends ApplicationAdapter {
 
 					if (object instanceof Ping) {
 						Ping request = (Ping)object;
-
 						Ack response = new Ack();
 						response.clientSentTime = request.timestamp;
 						response.timestamp = TimeUtils.nanoTime();
@@ -89,7 +88,7 @@ public class RogueStarServer extends ApplicationAdapter {
 						SyncSimulationResponseMessage response = new SyncSimulationResponseMessage();
 						response.x = simulation.px;
 						response.y = simulation.py;
-						connection.sendUDP(response);
+						connection.sendTCP(response);
 					}
 					else if (object instanceof TextMessage) {
 						TextMessage request = (TextMessage)object;
