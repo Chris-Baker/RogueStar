@@ -26,7 +26,7 @@ public class PlayScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        mapRenderer.render(game.camera);
+        //mapRenderer.render(game.camera);
         game.physics.debugRender(game.camera);
     }
 
