@@ -17,6 +17,7 @@ import java.io.IOException;
 public class NetworkClient {
 
     private Client client;
+    private boolean isConnected = false;
     private long ping;
     private long serverTimeAdjustment;
 
@@ -28,7 +29,7 @@ public class NetworkClient {
         final MapManager maps = game.maps;
 
         try {
-            client = new com.esotericsoftware.kryonet.Client();
+            client = new Client();
 
             Kryo kryo = client.getKryo();
             kryo.register(TextMessage.class);
@@ -40,14 +41,15 @@ public class NetworkClient {
             kryo.register(Ack.class);
             kryo.register(SetMapMessage.class);
 
-            client.start();
-            client.connect(5000, "localhost", 54555, 54777);
-
-            Ping ping = new Ping();
-            client.sendUDP(ping);
-
             client.addListener(new Listener() {
+
+                public void connected (Connection connection) {
+                    System.out.println("Connected: " + connection.getID());
+                    NetworkClient.this.isConnected = true;
+                }
+
                 public void received (Connection connection, Object object) {
+
                     if (object instanceof Ack) {
                         Ack response = (Ack)object;
                         NetworkClient.this.ping = (TimeUtils.nanoTime() - response.clientSentTime);
@@ -86,6 +88,14 @@ public class NetworkClient {
                     }
                 }
             });
+
+            client.start();
+            client.connect(5000, "localhost", 54555, 54777);
+
+            Ping ping = new Ping();
+            client.sendUDP(ping);
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -112,10 +122,20 @@ public class NetworkClient {
     }
 
     public void sendUDP(Message message) {
-        client.sendUDP(message);
+        if (this.isConnected) {
+            client.sendUDP(message);
+        }
+        else {
+            System.out.println("Not connected");
+        }
     }
 
     public void sendTCP(Message message) {
-        client.sendTCP(message);
+        if (this.isConnected) {
+            client.sendTCP(message);
+        }
+        else {
+            System.out.println("Not connected");
+        }
     }
 }
