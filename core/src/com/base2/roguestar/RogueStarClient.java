@@ -94,6 +94,16 @@ public class RogueStarClient extends Game {
 	@Override
 	public void create() {
 
+		// these are left over from network POC and will be replaced by other game systems
+		//shapeRenderer = new ShapeRenderer();
+		simulation = new Simulation();
+		previousFrame = new Simulation();
+		unverifiedUpdates = new Array<SimulationSnapshot>();
+		verifiedUpdates = new Array<SimulationSnapshot>();
+
+
+
+
 		setState(GameState.SETUP);
 		setScreen(new SetupScreen(this));
 
@@ -101,19 +111,13 @@ public class RogueStarClient extends Game {
 		physics.init();
 		entities.init(this);
 
-		//shapeRenderer = new ShapeRenderer();
-		simulation = new Simulation();
-		previousFrame = new Simulation();
-		unverifiedUpdates = new Array<SimulationSnapshot>();
-		verifiedUpdates = new Array<SimulationSnapshot>();
-
 	}
 
 	@Override
 	public void dispose() {
 		super.dispose();
-		physics.dispose();
-		maps.dispose();
+		//physics.dispose();
+		//maps.dispose();
 	}
 
 	@Override
