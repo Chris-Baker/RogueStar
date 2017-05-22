@@ -8,6 +8,8 @@ import com.base2.roguestar.entities.EntityManager;
 import com.base2.roguestar.network.messages.*;
 import com.base2.roguestar.physics.PhysicsManager;
 import com.base2.roguestar.physics.Simulation;
+import com.base2.roguestar.utils.CollisionLoader;
+import com.base2.roguestar.utils.EntityLoader;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
@@ -51,10 +53,15 @@ public class RogueStarServer extends ApplicationAdapter {
 
 	private Server server;
 
-	private GameState gameState = GameState.SETUP;
+	private GameState gameState;
 
 	@Override
 	public void create () {
+
+		this.setState(GameState.SETUP);
+
+		physics.init();
+		entities.init();
 
 		simulation = new Simulation();
 
@@ -116,6 +123,7 @@ public class RogueStarServer extends ApplicationAdapter {
 						Gdx.app.postRunnable(new Runnable() {
 							public void run() {
 								maps.load(mapName);
+								RogueStarServer.this.setState(GameState.LOADING);
 							}
 						});
 						server.sendToAllTCP(request);
@@ -130,28 +138,87 @@ public class RogueStarServer extends ApplicationAdapter {
 	@Override
 	public void render () {
 
-		accum += Gdx.graphics.getDeltaTime();
+		// on enter state stuff
+		switch (gameState) {
 
-		// iterate over all entities and get the physics components
+			case SETUP:
 
-		// we should have the previous snapshot already from last update
-		// we can see if there are new objects then we must send an update for them
-		// we can compare the properties of existing ones and if thee are changes we also include them in the update
+				break;
 
-		// send snapshot object
-		if (accum >= NETWORK_UPDATE_RATE) {
-			accum = 0;
-			PhysicsBodyMessage response = new PhysicsBodyMessage();
-			response.timestamp = TimeUtils.nanoTime();
-			response.x = simulation.px;
-			response.y = simulation.py;
-			server.sendToAllUDP(response);
+			case LOADING:
+
+				// map is loaded
+
+				// load static collision bodies
+				CollisionLoader.load(maps.getMap(), physics.world);
+
+				// this loader should send each entity to the client for it to load
+				EntityLoader.load(maps.getMap(), entities.engine, physics.world);
+
+				// we need to know which entities are the players
+
+				// map is loaded we can change the state to playing and signal to all players to start the game
+				setState(GameState.PLAYING);
+
+				break;
+
+			case PLAYING:
+
+				accum += Gdx.graphics.getDeltaTime();
+
+				// iterate over all entities and get the physics components
+
+				// we should have the previous snapshot already from last update
+				// we can see if there are new objects then we must send an update for them
+				// we can compare the properties of existing ones and if thee are changes we also include them in the update
+
+				// send snapshot object
+				if (accum >= NETWORK_UPDATE_RATE) {
+					accum = 0;
+					PhysicsBodyMessage response = new PhysicsBodyMessage();
+					response.timestamp = TimeUtils.nanoTime();
+					response.x = simulation.px;
+					response.y = simulation.py;
+					server.sendToAllUDP(response);
+				}
+
+				break;
+
+			case FINISHED:
+
+				break;
 		}
 
 	}
 
 	@Override
 	public void dispose () {
+
+	}
+
+	public void setState(GameState state) {
+
+		this.gameState = state;
+
+		// on enter state stuff
+		switch (gameState) {
+
+			case SETUP:
+				System.out.println("Set state: Setup");
+				break;
+
+			case LOADING:
+				System.out.println("Set state: Loading");
+				break;
+
+			case PLAYING:
+				System.out.println("Set state: Playing");
+				break;
+
+			case FINISHED:
+				System.out.println("Set state: Finished");
+				break;
+		}
 
 	}
 }

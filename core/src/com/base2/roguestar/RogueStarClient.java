@@ -13,6 +13,7 @@ import com.base2.roguestar.entities.EntityManager;
 import com.base2.roguestar.network.NetworkClient;
 import com.base2.roguestar.network.messages.*;
 import com.base2.roguestar.physics.PhysicsManager;
+import com.base2.roguestar.physics.PhysicsRenderer;
 import com.base2.roguestar.physics.Simulation;
 import com.base2.roguestar.physics.SimulationSnapshot;
 import com.base2.roguestar.screens.PlayScreen;
@@ -70,6 +71,7 @@ public class RogueStarClient extends Game {
 	public final MapManager maps = new MapManager();
 	public final EntityManager entities = new EntityManager();
 	public final NetworkClient network = new NetworkClient();
+	public final PhysicsRenderer physicsRenderer = new PhysicsRenderer();
 
 	public final OrthographicCamera camera = new OrthographicCamera();
 
@@ -109,8 +111,9 @@ public class RogueStarClient extends Game {
 
 		network.init(this);
 		physics.init();
-		entities.init(this);
-
+		entities.init();
+		entities.setCamera(this.camera);
+		physicsRenderer.init();
 	}
 
 	@Override
@@ -157,8 +160,6 @@ public class RogueStarClient extends Game {
 				EntityLoader.load(maps.getMap(), entities.engine, physics.world);
 
 				// we need to know which entities are the players
-
-				// we need to know which entity ID is the local player
 
 				// server signals map loaded
 				// we can just set the state for now
