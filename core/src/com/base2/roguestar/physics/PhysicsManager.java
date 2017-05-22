@@ -23,14 +23,10 @@ public class PhysicsManager {
     public World world;
     private final Array<Body> deathRow = new Array<Body>();
 
-    private Box2DDebugRenderer debugRenderer;
-    private final Matrix4 combined = new Matrix4();
-
     public void init() {
 
         world = new World(new Vector2(0, -25.0f), true);
         world.setContactListener(new CollisionHandler());
-        debugRenderer = new Box2DDebugRenderer();
         deathRow.clear();
     }
 
@@ -52,22 +48,16 @@ public class PhysicsManager {
         }
     }
 
-    public void debugRender(OrthographicCamera camera) {
-        // the debug renderer and physics world work in meters, the camera matrix is in pixels
-        // we need to scale the camera matrix by the pixels per meter value to make the scales
-        // match and render the debug draw correctly over the tiled maps.
-        combined.set(camera.combined).scl(Config.PIXELS_PER_METER);
-        //combined.set(camera.combined);
-        debugRenderer.render(world, combined);
-    }
-
     public void removeBody(Body b) {
         deathRow.add(b);
     }
 
+    public World getWorld() {
+        return this.world;
+    }
+
     public void dispose() {
         world.dispose();
-        debugRenderer.dispose();
     }
 
 }

@@ -1,7 +1,7 @@
 package com.base2.roguestar.entities;
 
 import com.badlogic.ashley.core.PooledEngine;
-import com.base2.roguestar.RogueStarClient;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.base2.roguestar.entities.systems.CameraSystem;
 import com.base2.roguestar.entities.systems.MovementSystem;
 
@@ -12,14 +12,15 @@ public class EntityManager {
 
     public PooledEngine engine;
 
-    public void init(RogueStarClient game) {
+    public void init() {
         engine = new PooledEngine();
 
         engine.addSystem(new MovementSystem());
         engine.addSystem(new CameraSystem());
+    }
 
-        engine.getSystem(CameraSystem.class).setCamera(game.camera);
-
+    public void setCamera(OrthographicCamera camera) {
+        engine.getSystem(CameraSystem.class).setCamera(camera);
     }
 
     public void update(float delta) {
