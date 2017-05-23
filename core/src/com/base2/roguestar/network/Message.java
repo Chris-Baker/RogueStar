@@ -1,4 +1,4 @@
-package com.base2.roguestar.network.messages;
+package com.base2.roguestar.network;
 
 import com.badlogic.gdx.utils.TimeUtils;
 
