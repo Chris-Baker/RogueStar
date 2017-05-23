@@ -13,20 +13,23 @@ import com.base2.roguestar.entities.components.*;
  */
 public class EntityFactory {
 
-    public static void create(PooledEngine engine, World world, String type, float x, float y, float angle) {
+    public static Entity create(EntityManager entityManager, World world, String type, float x, float y, float angle) {
+
+        Entity e = null;
 
         if(type.equals("player")) {
-            player(engine, world, x, y, angle);
+            e = player(entityManager, world, x, y, angle);
         }
 
+        return e;
     }
 
-    private static Entity player(PooledEngine engine, World world, float x, float y, float angle) {
+    private static Entity player(EntityManager entityManager, World world, float x, float y, float angle) {
 
-        Entity e = engine.createEntity();
+        Entity e = entityManager.createEntity();
 
         // Physics component
-        CharacterComponent pc = engine.createComponent(CharacterComponent.class);
+        CharacterComponent pc = entityManager.createComponent(CharacterComponent.class);
 
 //        BodyDef bodyDef = new BodyDef();
 //        bodyDef.type = BodyDef.BodyType.DynamicBody;
@@ -75,7 +78,7 @@ public class EntityFactory {
         e.add(pc);
 
         // player keyboard controller
-        ControllerComponent cc = engine.createComponent(ControllerComponent.class);
+        ControllerComponent cc = entityManager.createComponent(ControllerComponent.class);
         cc.controller = new KeyboardController();
 
         // register the controller as an input listener
@@ -84,18 +87,18 @@ public class EntityFactory {
         e.add(cc);
 
         // player run speed
-        RunSpeedComponent rc = engine.createComponent(RunSpeedComponent.class);
+        RunSpeedComponent rc = entityManager.createComponent(RunSpeedComponent.class);
         rc.runSpeed = 750;
         e.add(rc);
 
         // follow camera
-        CameraComponent cameraComponent = engine.createComponent(CameraComponent.class);
+        CameraComponent cameraComponent = entityManager.createComponent(CameraComponent.class);
         e.add(cameraComponent);
 
 
         // Player animation component
         // we want to get a texture pack of the animations
-        AnimatedSpriteComponent animationComponent = engine.createComponent(AnimatedSpriteComponent.class);
+        AnimatedSpriteComponent animationComponent = entityManager.createComponent(AnimatedSpriteComponent.class);
         //animationComponent.sprite = new AnimatedSprite(new Animation());
         // https://www.youtube.com/watch?v=SVyYvi0I6Bc
         // maybe we can alter the animated sprite class to accept multiple named animations
@@ -116,7 +119,7 @@ public class EntityFactory {
 
         // the view / animated sprite component or system should subscribe to state change events
 
-        engine.addEntity(e);
+        entityManager.addEntity(e);
 
         return e;
     }

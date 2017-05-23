@@ -153,7 +153,7 @@ public class RogueStarServer extends ApplicationAdapter {
 				CollisionLoader.load(maps.getMap(), physics.world);
 
 				// this loader should send each entity to the client for it to load
-				EntityLoader.load(maps.getMap(), entities.engine, physics.world);
+				EntityLoader.load(maps.getMap(), entities, physics.world, server);
 
 				// we need to know which entities are the players
 

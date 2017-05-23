@@ -1,6 +1,6 @@
 package com.base2.roguestar.utils;
 
-import com.badlogic.ashley.core.PooledEngine;
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.MapProperties;
@@ -9,17 +9,19 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.World;
 import com.base2.roguestar.entities.EntityFactory;
+import com.base2.roguestar.entities.EntityManager;
+import com.esotericsoftware.kryonet.Server;
 
 /**
  * Created by Chris on 28/03/2016.
  */
 public class EntityLoader {
 
-    public static void load(TiledMap map, PooledEngine engine, World world) {
-        parseObjectLayer(map.getLayers().get("entities").getObjects(), engine, world);
+    public static void load(TiledMap map, EntityManager entityManager, World world, Server server) {
+        parseObjectLayer(map.getLayers().get("entities").getObjects(), entityManager, world, server);
     }
 
-    private static void parseObjectLayer(MapObjects objects, PooledEngine engine, World world) {
+    private static void parseObjectLayer(MapObjects objects, EntityManager entityManager, World world, Server server) {
 
         for (MapObject object : objects) {
 
@@ -66,8 +68,15 @@ public class EntityLoader {
 
             String type = properties.get("type", String.class);
 
-            EntityFactory.create(engine, world, type, x, y, rotation);
+            Entity e = EntityFactory.create(entityManager, world, type, x, y, rotation);
 
+            // tell clients to load the entity too
+
+            // get the id
+
+            // create a request with all required info
+
+            // send / queue request
         }
     }
 
