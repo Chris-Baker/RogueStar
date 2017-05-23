@@ -156,8 +156,7 @@ public class RogueStarClient extends Game {
 				// load static collision bodies
 				CollisionLoader.load(maps.getMap(), physics.world);
 
-				// server sends entities to load but for now we can just trust local data
-				EntityLoader.load(maps.getMap(), entities.engine, physics.world);
+				// server sends entities to load
 
 				// we need to know which entities are the players
 
