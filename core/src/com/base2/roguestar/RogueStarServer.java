@@ -3,6 +3,7 @@ package com.base2.roguestar;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.base2.roguestar.events.EventManager;
 import com.base2.roguestar.maps.MapManager;
 import com.base2.roguestar.entities.EntityManager;
 import com.base2.roguestar.network.messages.*;
@@ -42,6 +43,7 @@ public class RogueStarServer extends ApplicationAdapter {
 	//   - handle player input
 	//   - update all players with movement and events
 
+	public final EventManager events = new EventManager();
 	public final PhysicsManager physics = new PhysicsManager();
 	public final MapManager maps = new MapManager();
 	public final EntityManager entities = new EntityManager();
@@ -60,8 +62,13 @@ public class RogueStarServer extends ApplicationAdapter {
 
 		this.setState(GameState.SETUP);
 
+		events.init();
 		physics.init();
 		entities.init();
+
+		// subscribe to events
+		events.subscribe(physics);
+		events.subscribe(entities);
 
 		simulation = new Simulation();
 

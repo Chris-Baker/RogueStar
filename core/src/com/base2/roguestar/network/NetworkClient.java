@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.base2.roguestar.GameState;
 import com.base2.roguestar.RogueStarClient;
+import com.base2.roguestar.events.Event;
+import com.base2.roguestar.events.EventSubscriber;
 import com.base2.roguestar.maps.MapManager;
 import com.base2.roguestar.network.messages.*;
 import com.base2.roguestar.physics.SimulationSnapshot;
@@ -14,7 +16,7 @@ import com.esotericsoftware.kryonet.Listener;
 
 import java.io.IOException;
 
-public class NetworkClient {
+public class NetworkClient implements EventSubscriber {
 
     private Client client;
     private boolean isConnected = false;
@@ -137,5 +139,10 @@ public class NetworkClient {
         else {
             System.out.println("Not connected");
         }
+    }
+
+    @Override
+    public void handleEvent(Event event) {
+
     }
 }
