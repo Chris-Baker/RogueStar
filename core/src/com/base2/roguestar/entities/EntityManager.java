@@ -25,10 +25,10 @@ public class EntityManager implements EventSubscriber {
         EntityToUid = new HashMap<Entity, UUID>();
 
         engine.addSystem(new MovementSystem());
-        engine.addSystem(new CameraSystem());
     }
 
     public void setCamera(OrthographicCamera camera) {
+        engine.addSystem(new CameraSystem());
         engine.getSystem(CameraSystem.class).setCamera(camera);
     }
 
