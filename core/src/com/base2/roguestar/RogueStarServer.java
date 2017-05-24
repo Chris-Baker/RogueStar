@@ -3,6 +3,7 @@ package com.base2.roguestar;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.base2.roguestar.events.EventManager;
 import com.base2.roguestar.maps.MapManager;
 import com.base2.roguestar.entities.EntityManager;
 import com.base2.roguestar.network.messages.*;
@@ -42,6 +43,7 @@ public class RogueStarServer extends ApplicationAdapter {
 	//   - handle player input
 	//   - update all players with movement and events
 
+	public final EventManager events = new EventManager();
 	public final PhysicsManager physics = new PhysicsManager();
 	public final MapManager maps = new MapManager();
 	public final EntityManager entities = new EntityManager();
@@ -60,8 +62,13 @@ public class RogueStarServer extends ApplicationAdapter {
 
 		this.setState(GameState.SETUP);
 
+		events.init();
 		physics.init();
 		entities.init();
+
+		// subscribe to events
+		events.subscribe(physics);
+		events.subscribe(entities);
 
 		simulation = new Simulation();
 
@@ -77,6 +84,7 @@ public class RogueStarServer extends ApplicationAdapter {
 			kryo.register(Ping.class);
 			kryo.register(Ack.class);
 			kryo.register(SetMapMessage.class);
+			kryo.register(CreateEntity.class);
 
 			server.start();
 			server.bind(54555, 54777);
@@ -138,6 +146,10 @@ public class RogueStarServer extends ApplicationAdapter {
 	@Override
 	public void render () {
 
+		float deltaTime = Gdx.graphics.getDeltaTime();
+
+		this.events.update();
+
 		// on enter state stuff
 		switch (gameState) {
 
@@ -164,7 +176,11 @@ public class RogueStarServer extends ApplicationAdapter {
 
 			case PLAYING:
 
-				accum += Gdx.graphics.getDeltaTime();
+				// update managers
+				this.entities.update(deltaTime);
+				this.physics.update(deltaTime);
+
+				accum += deltaTime;
 
 				// iterate over all entities and get the physics components
 

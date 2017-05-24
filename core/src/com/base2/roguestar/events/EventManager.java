@@ -4,11 +4,12 @@ import com.badlogic.gdx.utils.Array;
 
 public class EventManager {
 
-    private Array<Event> queue = new Array<Event>();
-    private Array<EventSubscriber> subscribers = new Array<EventSubscriber>();
+    private Array<Event> queue;
+    private Array<EventSubscriber> subscribers;
 
-    public EventManager() {
-
+    public void init() {
+        queue = new Array<Event>();
+        subscribers = new Array<EventSubscriber>();
     }
 
     public void subscribe(EventSubscriber subscriber) {
