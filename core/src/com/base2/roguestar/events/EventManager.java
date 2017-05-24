@@ -26,5 +26,6 @@ public class EventManager {
                 subscriber.handleEvent(event);
             }
         }
+        queue.clear();
     }
 }
