@@ -136,6 +136,8 @@ public class RogueStarClient extends Game {
 
 		float deltaTime = Gdx.graphics.getDeltaTime();
 
+		this.events.update();
+
 		// state specific update stuff
 		switch (gameState) {
 
