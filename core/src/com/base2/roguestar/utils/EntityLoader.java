@@ -10,7 +10,10 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.World;
 import com.base2.roguestar.entities.EntityFactory;
 import com.base2.roguestar.entities.EntityManager;
+import com.base2.roguestar.network.messages.CreateEntity;
 import com.esotericsoftware.kryonet.Server;
+
+import java.util.UUID;
 
 /**
  * Created by Chris on 28/03/2016.
@@ -73,10 +76,16 @@ public class EntityLoader {
             // tell clients to load the entity too
 
             // get the id
+            UUID uid = entityManager.getUUID(e);
 
-            // create a request with all required info
-
-            // send / queue request
+            // replace this with an event
+            CreateEntity request = new CreateEntity();
+            request.uid = uid.toString();
+            request.type = type;
+            request.x = x;
+            request.y = y;
+            request.rotation = rotation;
+            server.sendToAllUDP(request);
         }
     }
 

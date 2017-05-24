@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.base2.roguestar.GameState;
 import com.base2.roguestar.RogueStarClient;
+import com.base2.roguestar.events.Event;
+import com.base2.roguestar.events.EventSubscriber;
 import com.base2.roguestar.maps.MapManager;
 import com.base2.roguestar.network.messages.*;
 import com.base2.roguestar.physics.SimulationSnapshot;
@@ -14,7 +16,7 @@ import com.esotericsoftware.kryonet.Listener;
 
 import java.io.IOException;
 
-public class NetworkClient {
+public class NetworkClient implements EventSubscriber {
 
     private Client client;
     private boolean isConnected = false;
@@ -40,6 +42,7 @@ public class NetworkClient {
             kryo.register(Ping.class);
             kryo.register(Ack.class);
             kryo.register(SetMapMessage.class);
+            kryo.register(CreateEntity.class);
 
             client.addListener(new Listener() {
 
@@ -54,10 +57,10 @@ public class NetworkClient {
                         Ack response = (Ack)object;
                         NetworkClient.this.ping = (TimeUtils.nanoTime() - response.clientSentTime);
                         serverTimeAdjustment = (response.timestamp - (NetworkClient.this.ping)) - response.clientSentTime; // should this be ping / 2?
-                        System.out.println("Ping: " + TimeUtils.nanosToMillis((NetworkClient.this.ping)));
-                        System.out.println("NetworkClient Time: " + TimeUtils.nanosToMillis(TimeUtils.nanoTime()));
-                        System.out.println("Server Time: " + TimeUtils.nanosToMillis((response.timestamp - (NetworkClient.this.ping / 2))));
-                        System.out.println("Difference: " + TimeUtils.nanosToMillis(serverTimeAdjustment));
+//                        System.out.println("Ping: " + TimeUtils.nanosToMillis((NetworkClient.this.ping)));
+//                        System.out.println("NetworkClient Time: " + TimeUtils.nanosToMillis(TimeUtils.nanoTime()));
+//                        System.out.println("Server Time: " + TimeUtils.nanosToMillis((response.timestamp - (NetworkClient.this.ping / 2))));
+//                        System.out.println("Difference: " + TimeUtils.nanosToMillis(serverTimeAdjustment));
                     }
                     else if (object instanceof SyncSimulationResponseMessage) {
                         SyncSimulationResponseMessage response = (SyncSimulationResponseMessage)object;
@@ -85,6 +88,10 @@ public class NetworkClient {
                                 game.setState(GameState.LOADING);
                             }
                         });
+                    }
+                    else if (object instanceof CreateEntity) {
+                        CreateEntity request = (CreateEntity)object;
+                        System.out.println("Create entity: " + request.uid + ", " + request.type);
                     }
                 }
             });
@@ -137,5 +144,10 @@ public class NetworkClient {
         else {
             System.out.println("Not connected");
         }
+    }
+
+    @Override
+    public void handleEvent(Event event) {
+
     }
 }

@@ -6,12 +6,14 @@ import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.base2.roguestar.entities.systems.CameraSystem;
 import com.base2.roguestar.entities.systems.MovementSystem;
+import com.base2.roguestar.events.Event;
+import com.base2.roguestar.events.EventSubscriber;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class EntityManager {
+public class EntityManager implements EventSubscriber {
 
     private PooledEngine engine;
     private Map<UUID, Entity> uidToEntity;
@@ -23,10 +25,10 @@ public class EntityManager {
         EntityToUid = new HashMap<Entity, UUID>();
 
         engine.addSystem(new MovementSystem());
-        engine.addSystem(new CameraSystem());
     }
 
     public void setCamera(OrthographicCamera camera) {
+        engine.addSystem(new CameraSystem());
         engine.getSystem(CameraSystem.class).setCamera(camera);
     }
 
@@ -62,5 +64,10 @@ public class EntityManager {
 
     public void addEntity(Entity e) {
         engine.addEntity(e);
+    }
+
+    @Override
+    public void handleEvent(Event event) {
+
     }
 }

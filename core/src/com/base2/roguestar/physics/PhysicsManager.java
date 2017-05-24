@@ -7,12 +7,14 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
+import com.base2.roguestar.events.Event;
+import com.base2.roguestar.events.EventSubscriber;
 import com.base2.roguestar.utils.Config;
 
 /**
  * Created by Chris on 28/03/2016.
  */
-public class PhysicsManager {
+public class PhysicsManager implements EventSubscriber {
 
     // for fixed time step simulation
     private float accum = 0;
@@ -60,4 +62,8 @@ public class PhysicsManager {
         world.dispose();
     }
 
+    @Override
+    public void handleEvent(Event event) {
+
+    }
 }

@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.base2.roguestar.events.EventManager;
 import com.base2.roguestar.maps.MapManager;
 import com.base2.roguestar.entities.EntityManager;
 import com.base2.roguestar.network.NetworkClient;
@@ -67,6 +68,7 @@ public class RogueStarClient extends Game {
 	//	Game screen
 	//   - handle movement updates from server
 
+	public final EventManager events = new EventManager();
 	public final PhysicsManager physics = new PhysicsManager();
 	public final MapManager maps = new MapManager();
 	public final EntityManager entities = new EntityManager();
@@ -109,11 +111,17 @@ public class RogueStarClient extends Game {
 		setState(GameState.SETUP);
 		setScreen(new SetupScreen(this));
 
+		events.init();
 		network.init(this);
 		physics.init();
 		entities.init();
 		entities.setCamera(this.camera);
 		physicsRenderer.init();
+
+		// subscribe to events
+		events.subscribe(network);
+		events.subscribe(physics);
+		events.subscribe(entities);
 	}
 
 	@Override
@@ -127,6 +135,8 @@ public class RogueStarClient extends Game {
 	public void render() {
 
 		float deltaTime = Gdx.graphics.getDeltaTime();
+
+		this.events.update();
 
 		// state specific update stuff
 		switch (gameState) {
