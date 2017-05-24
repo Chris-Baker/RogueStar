@@ -84,6 +84,7 @@ public class RogueStarServer extends ApplicationAdapter {
 			kryo.register(Ping.class);
 			kryo.register(Ack.class);
 			kryo.register(SetMapMessage.class);
+			kryo.register(CreateEntity.class);
 
 			server.start();
 			server.bind(54555, 54777);

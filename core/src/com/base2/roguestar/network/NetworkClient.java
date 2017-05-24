@@ -42,6 +42,7 @@ public class NetworkClient implements EventSubscriber {
             kryo.register(Ping.class);
             kryo.register(Ack.class);
             kryo.register(SetMapMessage.class);
+            kryo.register(CreateEntity.class);
 
             client.addListener(new Listener() {
 
@@ -56,10 +57,10 @@ public class NetworkClient implements EventSubscriber {
                         Ack response = (Ack)object;
                         NetworkClient.this.ping = (TimeUtils.nanoTime() - response.clientSentTime);
                         serverTimeAdjustment = (response.timestamp - (NetworkClient.this.ping)) - response.clientSentTime; // should this be ping / 2?
-                        System.out.println("Ping: " + TimeUtils.nanosToMillis((NetworkClient.this.ping)));
-                        System.out.println("NetworkClient Time: " + TimeUtils.nanosToMillis(TimeUtils.nanoTime()));
-                        System.out.println("Server Time: " + TimeUtils.nanosToMillis((response.timestamp - (NetworkClient.this.ping / 2))));
-                        System.out.println("Difference: " + TimeUtils.nanosToMillis(serverTimeAdjustment));
+//                        System.out.println("Ping: " + TimeUtils.nanosToMillis((NetworkClient.this.ping)));
+//                        System.out.println("NetworkClient Time: " + TimeUtils.nanosToMillis(TimeUtils.nanoTime()));
+//                        System.out.println("Server Time: " + TimeUtils.nanosToMillis((response.timestamp - (NetworkClient.this.ping / 2))));
+//                        System.out.println("Difference: " + TimeUtils.nanosToMillis(serverTimeAdjustment));
                     }
                     else if (object instanceof SyncSimulationResponseMessage) {
                         SyncSimulationResponseMessage response = (SyncSimulationResponseMessage)object;
@@ -87,6 +88,10 @@ public class NetworkClient implements EventSubscriber {
                                 game.setState(GameState.LOADING);
                             }
                         });
+                    }
+                    else if (object instanceof CreateEntity) {
+                        CreateEntity request = (CreateEntity)object;
+                        System.out.println("Create entity: " + request.uid + ", " + request.type);
                     }
                 }
             });
