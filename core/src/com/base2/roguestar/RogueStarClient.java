@@ -2,7 +2,6 @@ package com.base2.roguestar;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -20,7 +19,7 @@ import com.base2.roguestar.physics.SimulationSnapshot;
 import com.base2.roguestar.screens.PlayScreen;
 import com.base2.roguestar.screens.SetupScreen;
 import com.base2.roguestar.utils.CollisionLoader;
-import com.base2.roguestar.utils.EntityLoader;
+import com.base2.roguestar.utils.Locator;
 
 public class RogueStarClient extends Game {
 
@@ -68,14 +67,13 @@ public class RogueStarClient extends Game {
 	//	Game screen
 	//   - handle movement updates from server
 
-	public final EventManager events = new EventManager();
-	public final PhysicsManager physics = new PhysicsManager();
-	public final MapManager maps = new MapManager();
-	public final EntityManager entities = new EntityManager();
+	private final EventManager events = new EventManager();
+	private final PhysicsManager physics = new PhysicsManager();
+	private final EntityManager entities = new EntityManager();
+	private final MapManager maps = new MapManager();
 	public final NetworkClient network = new NetworkClient();
-	public final PhysicsRenderer physicsRenderer = new PhysicsRenderer();
 
-	public final OrthographicCamera camera = new OrthographicCamera();
+	private final OrthographicCamera camera = new OrthographicCamera();
 
 	// simulation
 	public Simulation simulation;
@@ -105,23 +103,27 @@ public class RogueStarClient extends Game {
 		unverifiedUpdates = new Array<SimulationSnapshot>();
 		verifiedUpdates = new Array<SimulationSnapshot>();
 
-
-
-
-		setState(GameState.SETUP);
-		setScreen(new SetupScreen(this));
+		// provide all our managers to our locator
+		Locator.provide(events);
+		Locator.provide(physics);
+		Locator.provide(entities);
+		Locator.provide(maps);
 
 		events.init();
 		network.init(this);
 		physics.init();
 		entities.init();
 		entities.setCamera(this.camera);
-		physicsRenderer.init();
 
-		// subscribe to events
+		// subscribe to managers events
 		events.subscribe(network);
 		events.subscribe(physics);
 		events.subscribe(entities);
+		events.subscribe(maps);
+
+		// set our starting game state and screen
+		setState(GameState.SETUP);
+		setScreen(new SetupScreen(this));
 	}
 
 	@Override
@@ -164,7 +166,7 @@ public class RogueStarClient extends Game {
 				// load map
 
 				// load static collision bodies
-				CollisionLoader.load(maps.getMap(), physics.world);
+				CollisionLoader.load(maps.getMap(), physics.getWorld());
 
 				// server sends entities to load
 
@@ -173,7 +175,7 @@ public class RogueStarClient extends Game {
 				// server signals map loaded
 				// we can just set the state for now
 				setState(GameState.PLAYING);
-				setScreen(new PlayScreen(this));
+				setScreen(new PlayScreen(camera));
 
 				break;
 

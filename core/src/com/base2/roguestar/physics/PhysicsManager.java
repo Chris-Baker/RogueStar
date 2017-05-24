@@ -22,7 +22,7 @@ public class PhysicsManager implements EventSubscriber {
     private final int VELOCITY_ITERATIONS = 8;
     private final int POSITION_ITERATIONS = 3;
 
-    public World world;
+    private World world;
     private final Array<Body> deathRow = new Array<Body>();
 
     public void init() {

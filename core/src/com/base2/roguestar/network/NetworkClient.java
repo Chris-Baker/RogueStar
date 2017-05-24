@@ -5,16 +5,20 @@ import com.badlogic.gdx.utils.TimeUtils;
 import com.base2.roguestar.GameState;
 import com.base2.roguestar.RogueStarClient;
 import com.base2.roguestar.events.Event;
+import com.base2.roguestar.events.EventManager;
 import com.base2.roguestar.events.EventSubscriber;
+import com.base2.roguestar.events.messages.CreateEntityEvent;
 import com.base2.roguestar.maps.MapManager;
 import com.base2.roguestar.network.messages.*;
 import com.base2.roguestar.physics.SimulationSnapshot;
+import com.base2.roguestar.utils.Locator;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
 import java.io.IOException;
+import java.util.UUID;
 
 public class NetworkClient implements EventSubscriber {
 
@@ -28,7 +32,8 @@ public class NetworkClient implements EventSubscriber {
 
     public void init(final RogueStarClient game) {
 
-        final MapManager maps = game.maps;
+        final MapManager maps = Locator.getMapManager();
+        final EventManager events = Locator.getEventManager();
 
         try {
             client = new Client();
@@ -42,7 +47,7 @@ public class NetworkClient implements EventSubscriber {
             kryo.register(Ping.class);
             kryo.register(Ack.class);
             kryo.register(SetMapMessage.class);
-            kryo.register(CreateEntity.class);
+            kryo.register(CreateEntityMessage.class);
 
             client.addListener(new Listener() {
 
@@ -89,9 +94,16 @@ public class NetworkClient implements EventSubscriber {
                             }
                         });
                     }
-                    else if (object instanceof CreateEntity) {
-                        CreateEntity request = (CreateEntity)object;
-                        System.out.println("Create entity: " + request.uid + ", " + request.type);
+                    else if (object instanceof CreateEntityMessage) {
+                        CreateEntityMessage request = (CreateEntityMessage)object;
+                        CreateEntityEvent event = new CreateEntityEvent();
+                        event.uid = UUID.fromString(request.uid);
+                        event.type = request.type;
+                        event.x = request.x;
+                        event.y = request.y;
+                        event.rotation = request.rotation;
+                        events.queue(event);
+                        System.out.println("Create entity: " + event.type);
                     }
                 }
             });
