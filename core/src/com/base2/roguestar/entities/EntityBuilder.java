@@ -1,59 +1,74 @@
 package com.base2.roguestar.entities;
 
 import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.base2.roguestar.controllers.KeyboardController;
 import com.base2.roguestar.entities.components.*;
+import com.base2.roguestar.events.EventManager;
+import com.base2.roguestar.events.messages.EntityCreatedEvent;
+import com.base2.roguestar.physics.PhysicsManager;
+import com.base2.roguestar.utils.Locator;
 
-/**
- * Created by Chris on 28/03/2016.
- */
-public class EntityFactory {
+import java.util.UUID;
 
-    public static Entity create(EntityManager entityManager, World world, String type, float x, float y, float angle) {
+public class EntityBuilder {
 
-        Entity e = null;
+    EntityManager entities;
+    PhysicsManager physics;
+    EventManager events;
+
+    public void init() {
+        this.entities = Locator.getEntityManager();
+        this.physics = Locator.getPhysicsManager();
+        this.events = Locator.getEventManager();
+    }
+
+    public void create(String type, float x, float y, float rotation) {
+        Entity e = entities.createEntity();
+        create(e, type, x, y, rotation);
+    }
+
+    public void create(UUID uid, String type, float x, float y, float rotation) {
+
+        if (uid == null) {
+            create(type, x, y, rotation);
+            return;
+        }
+
+        Entity e = entities.createEntity(uid);
+        create(e, type, x, y, rotation);
+    }
+
+    private Entity create(Entity e, String type, float x, float y, float rotation) {
 
         if(type.equals("player")) {
-            e = player(entityManager, world, x, y, angle);
+            e = player(e, x, y, rotation);
+        }
+
+        if (e != null) {
+            EntityCreatedEvent event = new EntityCreatedEvent();
+            event.uid = entities.getUUID(e);
+            event.type = type;
+            event.x = x;
+            event.y = y;
+            event.rotation = rotation;
+            events.queue(event);
         }
 
         return e;
     }
 
-    private static Entity player(EntityManager entityManager, World world, float x, float y, float angle) {
-
-        Entity e = entityManager.createEntity();
+    private Entity player(Entity e, float x, float y, float angle) {
 
         // Physics component
-        CharacterComponent pc = entityManager.createComponent(CharacterComponent.class);
-
-//        BodyDef bodyDef = new BodyDef();
-//        bodyDef.type = BodyDef.BodyType.DynamicBody;
-//        bodyDef.position.set(0, 0);
-//
-//        CircleShape shape = new CircleShape();
-//        shape.setRadius(0.5f);
-//
-//        FixtureDef fixtureDef = new FixtureDef();
-//        fixtureDef.density = 2.5f;
-//        fixtureDef.friction = 0.0f;
-//        fixtureDef.restitution = 0.0f;
-//        fixtureDef.isSensor = false;
-//        fixtureDef.shape = shape;
-//
-//        Body body = world.createBody(bodyDef);
-//        body.createFixture(fixtureDef);
-//
-//        body.setTransform(x, y, angle);
+        CharacterComponent pc = entities.createComponent(CharacterComponent.class);
 
         BodyDef def = new BodyDef();
         def.type = BodyDef.BodyType.DynamicBody;
         def.fixedRotation = true;
-        Body body = world.createBody(def);
+        Body body = physics.getWorld().createBody(def);
 
         PolygonShape poly = new PolygonShape();
         poly.setAsBox(0.5f, 1f);
@@ -78,7 +93,7 @@ public class EntityFactory {
         e.add(pc);
 
         // player keyboard controller
-        ControllerComponent cc = entityManager.createComponent(ControllerComponent.class);
+        ControllerComponent cc = entities.createComponent(ControllerComponent.class);
         cc.controller = new KeyboardController();
 
         // register the controller as an input listener
@@ -87,18 +102,18 @@ public class EntityFactory {
         e.add(cc);
 
         // player run speed
-        RunSpeedComponent rc = entityManager.createComponent(RunSpeedComponent.class);
+        RunSpeedComponent rc = entities.createComponent(RunSpeedComponent.class);
         rc.runSpeed = 750;
         e.add(rc);
 
         // follow camera
-        CameraComponent cameraComponent = entityManager.createComponent(CameraComponent.class);
+        CameraComponent cameraComponent = entities.createComponent(CameraComponent.class);
         e.add(cameraComponent);
 
 
         // Player animation component
         // we want to get a texture pack of the animations
-        AnimatedSpriteComponent animationComponent = entityManager.createComponent(AnimatedSpriteComponent.class);
+        AnimatedSpriteComponent animationComponent = entities.createComponent(AnimatedSpriteComponent.class);
         //animationComponent.sprite = new AnimatedSprite(new Animation());
         // https://www.youtube.com/watch?v=SVyYvi0I6Bc
         // maybe we can alter the animated sprite class to accept multiple named animations
@@ -119,7 +134,7 @@ public class EntityFactory {
 
         // the view / animated sprite component or system should subscribe to state change events
 
-        entityManager.addEntity(e);
+        entities.addEntity(e);
 
         return e;
     }

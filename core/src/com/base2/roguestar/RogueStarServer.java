@@ -3,14 +3,18 @@ package com.base2.roguestar;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.base2.roguestar.events.Event;
 import com.base2.roguestar.events.EventManager;
+import com.base2.roguestar.events.EventSubscriber;
+import com.base2.roguestar.events.messages.EntityCreatedEvent;
 import com.base2.roguestar.maps.MapManager;
 import com.base2.roguestar.entities.EntityManager;
 import com.base2.roguestar.network.messages.*;
 import com.base2.roguestar.physics.PhysicsManager;
 import com.base2.roguestar.physics.Simulation;
 import com.base2.roguestar.utils.CollisionLoader;
-import com.base2.roguestar.utils.EntityLoader;
+import com.base2.roguestar.maps.MapObjectLoader;
+import com.base2.roguestar.utils.Locator;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
@@ -18,7 +22,7 @@ import com.esotericsoftware.kryonet.Server;
 
 import java.io.IOException;
 
-public class RogueStarServer extends ApplicationAdapter {
+public class RogueStarServer extends ApplicationAdapter implements EventSubscriber {
 
 	//	Server
 	//	Pre game state
@@ -45,8 +49,8 @@ public class RogueStarServer extends ApplicationAdapter {
 
 	public final EventManager events = new EventManager();
 	public final PhysicsManager physics = new PhysicsManager();
-	public final MapManager maps = new MapManager();
 	public final EntityManager entities = new EntityManager();
+	public final MapManager maps = new MapManager();
 
 	private static final float NETWORK_UPDATE_RATE = 1 / 10.0f;
 	private float accum = 0;
@@ -62,6 +66,12 @@ public class RogueStarServer extends ApplicationAdapter {
 
 		this.setState(GameState.SETUP);
 
+		// provide all our managers to our locator
+		Locator.provide(events);
+		Locator.provide(physics);
+		Locator.provide(entities);
+		Locator.provide(maps);
+
 		events.init();
 		physics.init();
 		entities.init();
@@ -69,6 +79,7 @@ public class RogueStarServer extends ApplicationAdapter {
 		// subscribe to events
 		events.subscribe(physics);
 		events.subscribe(entities);
+		events.subscribe(this);
 
 		simulation = new Simulation();
 
@@ -84,7 +95,7 @@ public class RogueStarServer extends ApplicationAdapter {
 			kryo.register(Ping.class);
 			kryo.register(Ack.class);
 			kryo.register(SetMapMessage.class);
-			kryo.register(CreateEntity.class);
+			kryo.register(CreateEntityMessage.class);
 
 			server.start();
 			server.bind(54555, 54777);
@@ -162,10 +173,10 @@ public class RogueStarServer extends ApplicationAdapter {
 				// map is loaded
 
 				// load static collision bodies
-				CollisionLoader.load(maps.getMap(), physics.world);
+				CollisionLoader.load(maps.getMap(), physics.getWorld());
 
 				// this loader should send each entity to the client for it to load
-				EntityLoader.load(maps.getMap(), entities, physics.world, server);
+				maps.loadEntities();
 
 				// we need to know which entities are the players
 
@@ -236,5 +247,22 @@ public class RogueStarServer extends ApplicationAdapter {
 				break;
 		}
 
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+
+		System.out.println("Server handle event " + event.getClass());
+
+		if (event instanceof EntityCreatedEvent) {
+			EntityCreatedEvent ce = (EntityCreatedEvent)event;
+			CreateEntityMessage request = new CreateEntityMessage();
+			request.uid = ce.uid.toString();
+			request.type = ce.type;
+			request.x = ce.x;
+			request.y = ce.y;
+			request.rotation = ce.rotation;
+			server.sendToAllTCP(request);
+		}
 	}
 }
