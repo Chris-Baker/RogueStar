@@ -145,6 +145,10 @@ public class RogueStarServer extends ApplicationAdapter {
 	@Override
 	public void render () {
 
+		float deltaTime = Gdx.graphics.getDeltaTime();
+
+		this.events.update();
+
 		// on enter state stuff
 		switch (gameState) {
 
@@ -171,7 +175,11 @@ public class RogueStarServer extends ApplicationAdapter {
 
 			case PLAYING:
 
-				accum += Gdx.graphics.getDeltaTime();
+				// update managers
+				this.entities.update(deltaTime);
+				this.physics.update(deltaTime);
+
+				accum += deltaTime;
 
 				// iterate over all entities and get the physics components
 
