@@ -6,10 +6,10 @@ import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.base2.roguestar.entities.systems.CameraSystem;
 import com.base2.roguestar.entities.systems.MovementSystem;
+import com.base2.roguestar.entities.systems.PlayerInputEventSystem;
 import com.base2.roguestar.events.Event;
 import com.base2.roguestar.events.EventSubscriber;
 import com.base2.roguestar.events.messages.CreateEntityEvent;
-import com.base2.roguestar.events.messages.EntityCreatedEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,6 +29,7 @@ public class EntityManager implements EventSubscriber {
 
         engine = new PooledEngine();
         engine.addSystem(new MovementSystem());
+        engine.addSystem(new PlayerInputEventSystem());
 
         builder = new EntityBuilder();
         builder.init();
