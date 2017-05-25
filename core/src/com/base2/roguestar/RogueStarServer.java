@@ -128,13 +128,8 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 						CharacterControllerMessage request = (CharacterControllerMessage) object;
 
 						// set the character controller of this entity
-						if (request.moveLeft) {
-							simulation.px -= 1;
-						}
-
-						if (request.moveRight) {
-							simulation.px += 1;
-						}
+						System.out.println("Player input: " + request.uid);
+						System.out.println("Left: " + request.moveLeft + ", Right: " + request.moveRight);
 					}
 					else if (object instanceof SetMapMessage) {
 						SetMapMessage request = (SetMapMessage) object;

@@ -234,15 +234,6 @@ public class RogueStarClient extends Game {
 
 				}
 
-				// create network request to send player control inputs
-				CharacterControllerMessage request = new CharacterControllerMessage();
-				request.timestamp = TimeUtils.nanoTime();
-				request.moveLeft = this.moveLeft;
-				request.moveRight = this.moveRight;
-				request.jump = this.jump;
-
-				network.sendTCP(request);
-
 				break;
 
 			case FINISHED:

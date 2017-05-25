@@ -8,6 +8,7 @@ import com.base2.roguestar.events.Event;
 import com.base2.roguestar.events.EventManager;
 import com.base2.roguestar.events.EventSubscriber;
 import com.base2.roguestar.events.messages.CreateEntityEvent;
+import com.base2.roguestar.events.messages.PlayerInputEvent;
 import com.base2.roguestar.maps.MapManager;
 import com.base2.roguestar.network.messages.*;
 import com.base2.roguestar.physics.SimulationSnapshot;
@@ -160,6 +161,20 @@ public class NetworkClient implements EventSubscriber {
 
     @Override
     public void handleEvent(Event event) {
+
+        if (event instanceof PlayerInputEvent) {
+            PlayerInputEvent playerInput = (PlayerInputEvent)event;
+
+            // create network request to send player control inputs
+            CharacterControllerMessage request = new CharacterControllerMessage();
+            request.timestamp = TimeUtils.nanoTime();
+            request.uid = playerInput.uid.toString();
+            request.jump = playerInput.jump;
+            request.moveLeft = playerInput.moveLeft;
+            request.moveRight = playerInput.moveRight;
+
+            sendUDP(request);
+        }
 
     }
 }
