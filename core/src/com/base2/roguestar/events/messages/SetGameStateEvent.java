@@ -1,6 +1,6 @@
 package com.base2.roguestar.events.messages;
 
-import com.base2.roguestar.GameState;
+import com.base2.roguestar.game.GameState;
 
 /**
  * Created by Chris on 24/05/2017.
