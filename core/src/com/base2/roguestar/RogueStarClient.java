@@ -8,17 +8,16 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.base2.roguestar.events.EventManager;
+import com.base2.roguestar.game.GameState;
 import com.base2.roguestar.maps.MapManager;
 import com.base2.roguestar.entities.EntityManager;
 import com.base2.roguestar.network.NetworkClient;
-import com.base2.roguestar.network.messages.*;
 import com.base2.roguestar.physics.PhysicsManager;
-import com.base2.roguestar.physics.PhysicsRenderer;
 import com.base2.roguestar.physics.Simulation;
 import com.base2.roguestar.physics.SimulationSnapshot;
 import com.base2.roguestar.screens.PlayScreen;
 import com.base2.roguestar.screens.SetupScreen;
-import com.base2.roguestar.utils.CollisionLoader;
+import com.base2.roguestar.maps.CollisionLoader;
 import com.base2.roguestar.utils.Locator;
 
 public class RogueStarClient extends Game {

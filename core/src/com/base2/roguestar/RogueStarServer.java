@@ -7,13 +7,13 @@ import com.base2.roguestar.events.Event;
 import com.base2.roguestar.events.EventManager;
 import com.base2.roguestar.events.EventSubscriber;
 import com.base2.roguestar.events.messages.EntityCreatedEvent;
+import com.base2.roguestar.game.GameState;
 import com.base2.roguestar.maps.MapManager;
 import com.base2.roguestar.entities.EntityManager;
 import com.base2.roguestar.network.messages.*;
 import com.base2.roguestar.physics.PhysicsManager;
 import com.base2.roguestar.physics.Simulation;
-import com.base2.roguestar.utils.CollisionLoader;
-import com.base2.roguestar.maps.MapObjectLoader;
+import com.base2.roguestar.maps.CollisionLoader;
 import com.base2.roguestar.utils.Locator;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.Connection;
@@ -126,10 +126,6 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 					}
 					else if (object instanceof CharacterControllerMessage) {
 						CharacterControllerMessage request = (CharacterControllerMessage) object;
-
-						// set the character controller of this entity
-						System.out.println("Player input: " + request.uid);
-						System.out.println("Left: " + request.moveLeft + ", Right: " + request.moveRight);
 					}
 					else if (object instanceof SetMapMessage) {
 						SetMapMessage request = (SetMapMessage) object;
@@ -246,8 +242,6 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 
 	@Override
 	public void handleEvent(Event event) {
-
-		System.out.println("Server handle event " + event.getClass());
 
 		if (event instanceof EntityCreatedEvent) {
 			EntityCreatedEvent ce = (EntityCreatedEvent)event;

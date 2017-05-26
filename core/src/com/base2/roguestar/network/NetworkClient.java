@@ -2,7 +2,7 @@ package com.base2.roguestar.network;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.base2.roguestar.GameState;
+import com.base2.roguestar.game.GameState;
 import com.base2.roguestar.RogueStarClient;
 import com.base2.roguestar.events.Event;
 import com.base2.roguestar.events.EventManager;

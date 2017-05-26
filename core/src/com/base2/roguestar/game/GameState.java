@@ -1,4 +1,4 @@
-package com.base2.roguestar;
+package com.base2.roguestar.game;
 
 public enum GameState {
     SETUP,

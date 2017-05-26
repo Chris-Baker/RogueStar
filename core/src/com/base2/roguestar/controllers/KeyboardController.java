@@ -8,11 +8,7 @@ import com.base2.roguestar.utils.Preferences;
 /**
  * Created by Chris on 28/03/2016.
  */
-public class KeyboardController implements InputProcessor {
-
-    public boolean jump;
-    public boolean moveLeft;
-    public boolean moveRight;
+public class KeyboardController extends CharacterController implements InputProcessor {
 
     /* (non-Javadoc)
          * @see com.badlogic.gdx.InputProcessor#keyDown(int)
