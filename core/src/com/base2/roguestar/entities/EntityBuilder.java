@@ -2,6 +2,7 @@ package com.base2.roguestar.entities;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.base2.roguestar.controllers.KeyboardController;
@@ -97,7 +98,7 @@ public class EntityBuilder {
         cc.controller = new KeyboardController();
 
         // register the controller as an input listener
-        Gdx.input.setInputProcessor(cc.controller);
+        Gdx.input.setInputProcessor((InputProcessor) cc.controller);
 
         e.add(cc);
 

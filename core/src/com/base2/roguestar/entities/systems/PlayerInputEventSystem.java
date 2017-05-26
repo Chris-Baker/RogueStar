@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
+import com.base2.roguestar.controllers.CharacterController;
 import com.base2.roguestar.controllers.KeyboardController;
 import com.base2.roguestar.entities.EntityManager;
 import com.base2.roguestar.entities.components.CharacterComponent;
@@ -32,7 +33,7 @@ public class PlayerInputEventSystem extends IteratingSystem {
 
         // get our controller component and input listener
         ControllerComponent c = cm.get(entity);
-        KeyboardController controller = c.controller;
+        CharacterController controller = c.controller;
 
         // create an event containing the input data
         PlayerInputEvent event = new PlayerInputEvent();
