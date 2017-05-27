@@ -74,6 +74,10 @@ public class EntityManager implements EventSubscriber {
         engine.addEntity(e);
     }
 
+    public boolean entityExists(UUID uid) {
+        return uidToEntity.containsKey(uid);
+    }
+
     @Override
     public void handleEvent(Event event) {
 
