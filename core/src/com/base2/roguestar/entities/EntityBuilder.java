@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.base2.roguestar.controllers.CharacterControllerSnapshot;
 import com.base2.roguestar.controllers.KeyboardController;
 import com.base2.roguestar.controllers.NetworkController;
 import com.base2.roguestar.entities.components.*;
@@ -99,11 +100,10 @@ public class EntityBuilder {
 
         // player keyboard controller
         ControllerComponent cc = entities.createComponent(ControllerComponent.class);
+        cc.snapshot = new CharacterControllerSnapshot();
 
         if (entities.getUUID(e).equals(game.getLocalPlayerUid())) {
             cc.controller = new KeyboardController();
-
-            // register the controller as an input listener
             Gdx.input.setInputProcessor((InputProcessor) cc.controller);
         }
         else {
