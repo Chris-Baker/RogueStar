@@ -52,6 +52,8 @@ public class MovementSystem extends IteratingSystem {
         Vector2 vel = body.getLinearVelocity();
         Vector2 pos = body.getPosition();
 
+        //System.out.println(pos.x + ", " + pos.y);
+
         //System.out.println(p.isGrounded);
 
 //        if (p.isGrounded) {

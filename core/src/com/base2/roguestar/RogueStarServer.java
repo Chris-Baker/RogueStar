@@ -1,8 +1,11 @@
 package com.base2.roguestar;
 
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.base2.roguestar.controllers.CharacterController;
+import com.base2.roguestar.entities.components.ControllerComponent;
 import com.base2.roguestar.events.Event;
 import com.base2.roguestar.events.EventManager;
 import com.base2.roguestar.events.EventSubscriber;
@@ -23,6 +26,7 @@ import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 
 import java.io.IOException;
+import java.util.UUID;
 
 public class RogueStarServer extends ApplicationAdapter implements EventSubscriber {
 
@@ -131,8 +135,17 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 						connection.sendTCP(response);
 					}
 					else if (object instanceof CharacterControllerMessage) {
-						CharacterControllerMessage request = (CharacterControllerMessage) object;
-						System.out.println("Player input: " + request.uid);
+						final CharacterControllerMessage request = (CharacterControllerMessage) object;
+
+						Gdx.app.postRunnable(new Runnable() {
+							public void run() {
+								Entity e = entities.getEntity(UUID.fromString(request.uid));
+								CharacterController cc = e.getComponent(ControllerComponent.class).controller;
+								cc.jump = request.jump;
+								cc.moveLeft = request.moveLeft;
+								cc.moveRight = request.moveRight;
+							}
+						});
 					}
 					else if (object instanceof SetMapMessage) {
 						SetMapMessage request = (SetMapMessage) object;
