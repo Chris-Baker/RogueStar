@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.base2.roguestar.events.EventManager;
+import com.base2.roguestar.game.GameManager;
 import com.base2.roguestar.game.GameState;
 import com.base2.roguestar.maps.MapManager;
 import com.base2.roguestar.entities.EntityManager;
@@ -70,6 +71,7 @@ public class RogueStarClient extends Game {
 	private final PhysicsManager physics = new PhysicsManager();
 	private final EntityManager entities = new EntityManager();
 	private final MapManager maps = new MapManager();
+	private final GameManager game = new GameManager();
 	public final NetworkClient network = new NetworkClient();
 
 	private final OrthographicCamera camera = new OrthographicCamera();
@@ -80,11 +82,6 @@ public class RogueStarClient extends Game {
 	private Array<SimulationSnapshot> unverifiedUpdates;
 	public Array<SimulationSnapshot> verifiedUpdates;
 	private SimulationSnapshot verifiedUpdate;
-
-	// player movement
-	private boolean moveLeft = false;
-	private boolean moveRight = false;
-	private boolean jump = false;
 
 	// render
 	private ShapeRenderer shapeRenderer;
@@ -107,6 +104,7 @@ public class RogueStarClient extends Game {
 		Locator.provide(physics);
 		Locator.provide(entities);
 		Locator.provide(maps);
+		Locator.provide(game);
 
 		events.init();
 		network.init(this);
@@ -119,6 +117,7 @@ public class RogueStarClient extends Game {
 		events.subscribe(physics);
 		events.subscribe(entities);
 		events.subscribe(maps);
+		events.subscribe(game);
 
 		// set our starting game state and screen
 		setState(GameState.SETUP);
@@ -188,14 +187,6 @@ public class RogueStarClient extends Game {
 				this.entities.update(deltaTime);
 				this.physics.update(deltaTime);
 				this.network.update(deltaTime);
-
-				// update the simulation locally based on player input
-				if (this.moveLeft) {
-					simulation.px -= 1;
-				}
-				if (this.moveRight) {
-					simulation.px += 1;
-				}
 
 				// store our update as an unverified update
 				SimulationSnapshot updateDelta = new SimulationSnapshot();

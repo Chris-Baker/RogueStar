@@ -7,7 +7,9 @@ import com.base2.roguestar.events.Event;
 import com.base2.roguestar.events.EventManager;
 import com.base2.roguestar.events.EventSubscriber;
 import com.base2.roguestar.events.messages.EntityCreatedEvent;
+import com.base2.roguestar.game.GameManager;
 import com.base2.roguestar.game.GameState;
+import com.base2.roguestar.game.Player;
 import com.base2.roguestar.maps.MapManager;
 import com.base2.roguestar.entities.EntityManager;
 import com.base2.roguestar.network.messages.*;
@@ -47,10 +49,11 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 	//   - handle player input
 	//   - update all players with movement and events
 
-	public final EventManager events = new EventManager();
-	public final PhysicsManager physics = new PhysicsManager();
-	public final EntityManager entities = new EntityManager();
-	public final MapManager maps = new MapManager();
+	private final EventManager events = new EventManager();
+	private final PhysicsManager physics = new PhysicsManager();
+	private final EntityManager entities = new EntityManager();
+	private final MapManager maps = new MapManager();
+	private final GameManager game = new GameManager();
 
 	private static final float NETWORK_UPDATE_RATE = 1 / 10.0f;
 	private float accum = 0;
@@ -71,10 +74,12 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 		Locator.provide(physics);
 		Locator.provide(entities);
 		Locator.provide(maps);
+		Locator.provide(game);
 
 		events.init();
 		physics.init();
 		entities.init();
+		game.init();
 
 		// subscribe to events
 		events.subscribe(physics);
@@ -96,6 +101,7 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 			kryo.register(Ack.class);
 			kryo.register(SetMapMessage.class);
 			kryo.register(CreateEntityMessage.class);
+			kryo.register(JoinAsPlayerMessage.class);
 
 			server.start();
 			server.bind(54555, 54777);
@@ -126,6 +132,7 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 					}
 					else if (object instanceof CharacterControllerMessage) {
 						CharacterControllerMessage request = (CharacterControllerMessage) object;
+						System.out.println("Player input: " + request.uid);
 					}
 					else if (object instanceof SetMapMessage) {
 						SetMapMessage request = (SetMapMessage) object;
@@ -137,6 +144,24 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 							}
 						});
 						server.sendToAllTCP(request);
+					}
+					else if (object instanceof JoinAsPlayerMessage) {
+						JoinAsPlayerMessage request = (JoinAsPlayerMessage)object;
+
+						// create a new player and add it to the game manager
+						Player player = new Player();
+						game.addPlayer(player);
+
+						// send the player uid back to the requester
+						request.uid = player.getUid().toString();
+						request.isLocalPlayer = true;
+						connection.sendUDP(request);
+
+						// send player to all other connections
+						JoinAsPlayerMessage response = new JoinAsPlayerMessage();
+						response.uid = player.getUid().toString();
+						response.isLocalPlayer = false;
+						server.sendToAllExceptUDP(connection.getID(), response);
 					}
 				}
 			}));

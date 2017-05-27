@@ -8,15 +8,20 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.MathUtils;
 import com.base2.roguestar.events.EventManager;
 import com.base2.roguestar.events.messages.CreateEntityEvent;
+import com.base2.roguestar.game.GameManager;
 import com.base2.roguestar.utils.Config;
 import com.base2.roguestar.utils.Locator;
+
+import java.util.UUID;
 
 public class MapObjectLoader {
 
     EventManager events;
+    GameManager game;;
 
     protected void init() {
         this.events = Locator.getEventManager();
+        this.game = Locator.getGameManager();
     }
 
     protected void loadEntities(TiledMap map) {
@@ -42,8 +47,6 @@ public class MapObjectLoader {
             float width = tile.getScaleX() * Config.PIXELS_PER_METER;
             float height = tile.getScaleY() * Config.PIXELS_PER_METER;
 
-            System.out.print(height);
-
             // top left corner
             float x = tile.getX() / Config.PIXELS_PER_METER;
             float y = (tile.getY() + height) / Config.PIXELS_PER_METER;
@@ -67,6 +70,20 @@ public class MapObjectLoader {
 
             // queue up our event so it can be handled by the entity manager
             CreateEntityEvent event = new CreateEntityEvent();
+
+            // we want to get the next unspawned player uid so this entity is linked
+            if (type.equals("player")) {
+
+                UUID playerUid = game.getUnspawnedPlayerUid();
+
+                // we don't want to create an entity if there is no unspawned player
+                if (playerUid == null) {
+                    return;
+                }
+
+                event.uid = playerUid;
+            }
+
             event.type = type;
             event.x = x;
             event.y = y;

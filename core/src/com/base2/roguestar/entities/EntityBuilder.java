@@ -6,9 +6,11 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.base2.roguestar.controllers.KeyboardController;
+import com.base2.roguestar.controllers.NetworkController;
 import com.base2.roguestar.entities.components.*;
 import com.base2.roguestar.events.EventManager;
 import com.base2.roguestar.events.messages.EntityCreatedEvent;
+import com.base2.roguestar.game.GameManager;
 import com.base2.roguestar.physics.PhysicsManager;
 import com.base2.roguestar.utils.Locator;
 
@@ -19,11 +21,13 @@ public class EntityBuilder {
     EntityManager entities;
     PhysicsManager physics;
     EventManager events;
+    GameManager game;
 
     public void init() {
         this.entities = Locator.getEntityManager();
         this.physics = Locator.getPhysicsManager();
         this.events = Locator.getEventManager();
+        this.game = Locator.getGameManager();
     }
 
     public void create(String type, float x, float y, float rotation) {
@@ -95,10 +99,16 @@ public class EntityBuilder {
 
         // player keyboard controller
         ControllerComponent cc = entities.createComponent(ControllerComponent.class);
-        cc.controller = new KeyboardController();
 
-        // register the controller as an input listener
-        Gdx.input.setInputProcessor((InputProcessor) cc.controller);
+        if (entities.getUUID(e).equals(game.getLocalPlayerUid())) {
+            cc.controller = new KeyboardController();
+
+            // register the controller as an input listener
+            Gdx.input.setInputProcessor((InputProcessor) cc.controller);
+        }
+        else {
+            cc.controller = new NetworkController();
+        }
 
         e.add(cc);
 

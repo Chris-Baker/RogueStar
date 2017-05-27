@@ -2,6 +2,7 @@ package com.base2.roguestar.network;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.base2.roguestar.events.messages.AddPlayerEvent;
 import com.base2.roguestar.game.GameState;
 import com.base2.roguestar.RogueStarClient;
 import com.base2.roguestar.events.Event;
@@ -49,12 +50,16 @@ public class NetworkClient implements EventSubscriber {
             kryo.register(Ack.class);
             kryo.register(SetMapMessage.class);
             kryo.register(CreateEntityMessage.class);
+            kryo.register(JoinAsPlayerMessage.class);
 
             client.addListener(new Listener() {
 
                 public void connected (Connection connection) {
                     System.out.println("Connected: " + connection.getID());
                     NetworkClient.this.isConnected = true;
+
+                    // tell the server we want to join as a player
+                    client.sendUDP(new JoinAsPlayerMessage());
                 }
 
                 public void received (Connection connection, Object object) {
@@ -105,6 +110,13 @@ public class NetworkClient implements EventSubscriber {
                         event.rotation = request.rotation;
                         events.queue(event);
                         System.out.println("Create entity: " + event.type);
+                    }
+                    else if (object instanceof JoinAsPlayerMessage) {
+                        JoinAsPlayerMessage request = (JoinAsPlayerMessage) object;
+                        AddPlayerEvent event = new AddPlayerEvent();
+                        event.uid = UUID.fromString(request.uid);
+                        event.isLocalPlayer = request.isLocalPlayer;
+                        events.queue(event);
                     }
                 }
             });
