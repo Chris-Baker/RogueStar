@@ -1,10 +1,15 @@
 package com.base2.roguestar;
 
+import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.base2.roguestar.controllers.CharacterController;
+import com.base2.roguestar.entities.components.CharacterComponent;
 import com.base2.roguestar.entities.components.ControllerComponent;
 import com.base2.roguestar.events.Event;
 import com.base2.roguestar.events.EventManager;
@@ -16,8 +21,8 @@ import com.base2.roguestar.game.Player;
 import com.base2.roguestar.maps.MapManager;
 import com.base2.roguestar.entities.EntityManager;
 import com.base2.roguestar.network.messages.*;
+import com.base2.roguestar.physics.PhysicsBodySnapshot;
 import com.base2.roguestar.physics.PhysicsManager;
-import com.base2.roguestar.physics.Simulation;
 import com.base2.roguestar.maps.CollisionLoader;
 import com.base2.roguestar.utils.Locator;
 import com.esotericsoftware.kryo.Kryo;
@@ -62,7 +67,7 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 	private static final float NETWORK_UPDATE_RATE = 1 / 10.0f;
 	private float accum = 0;
 
-	private Simulation simulation;
+	private ComponentMapper<CharacterComponent> physicsMapper;
 
 	private Server server;
 
@@ -90,7 +95,7 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 		events.subscribe(entities);
 		events.subscribe(this);
 
-		simulation = new Simulation();
+		physicsMapper = ComponentMapper.getFor(CharacterComponent.class);
 
 		try {
 			server = new Server();
@@ -98,7 +103,7 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 			Kryo kryo = server.getKryo();
 			kryo.register(TextMessage.class);
 			kryo.register(CharacterControllerMessage.class);
-			kryo.register(PhysicsBodyMessage.class);
+			kryo.register(PhysicsBodySnapshotMessage.class);
 			kryo.register(SyncSimulationRequestMessage.class);
 			kryo.register(SyncSimulationResponseMessage.class);
 			kryo.register(Ping.class);
@@ -106,6 +111,8 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 			kryo.register(SetMapMessage.class);
 			kryo.register(CreateEntityMessage.class);
 			kryo.register(JoinAsPlayerMessage.class);
+			kryo.register(PhysicsBodySnapshot.class);
+			kryo.register(Vector2.class);
 
 			server.start();
 			server.bind(54555, 54777);
@@ -122,8 +129,6 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 					}
 					else if (object instanceof SyncSimulationRequestMessage) {
 						SyncSimulationResponseMessage response = new SyncSimulationResponseMessage();
-						response.x = simulation.px;
-						response.y = simulation.py;
 						connection.sendTCP(response);
 					}
 					else if (object instanceof TextMessage) {
@@ -222,7 +227,8 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 
 				accum += deltaTime;
 
-				// iterate over all entities and get the physics components
+				// iterate over all the physics components
+
 
 				// we should have the previous snapshot already from last update
 				// we can see if there are new objects then we must send an update for them
@@ -231,11 +237,19 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 				// send snapshot object
 				if (accum >= NETWORK_UPDATE_RATE) {
 					accum = 0;
-					PhysicsBodyMessage response = new PhysicsBodyMessage();
-					response.timestamp = TimeUtils.nanoTime();
-					response.x = simulation.px;
-					response.y = simulation.py;
-					server.sendToAllUDP(response);
+
+					// iterate over our physics components, create and send physics snapshots for each body
+					for (Entity entity: entities.getEntitiesFor(Family.all(CharacterComponent.class).get())) {
+						CharacterComponent cc = physicsMapper.get(entity);
+						Body body = cc.body;
+						PhysicsBodySnapshot bodySnapshot = new PhysicsBodySnapshot(body, entities.getUUID(entity));
+						cc.snapshots.add(bodySnapshot);
+
+						PhysicsBodySnapshotMessage response = new PhysicsBodySnapshotMessage();
+						response.timestamp = TimeUtils.nanoTime();
+						response.snapshot = bodySnapshot;
+						server.sendToAllUDP(response);
+					}
 				}
 
 				break;

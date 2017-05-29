@@ -1,15 +1,18 @@
 package com.base2.roguestar.physics;
 
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.base2.roguestar.events.Event;
 import com.base2.roguestar.events.EventSubscriber;
+import com.base2.roguestar.events.messages.UnverifiedPhysicsBodySnapshotEvent;
+import com.base2.roguestar.events.messages.VerifiedPhysicsBodySnapshotEvent;
 import com.base2.roguestar.utils.Config;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Created by Chris on 28/03/2016.
@@ -25,11 +28,20 @@ public class PhysicsManager implements EventSubscriber {
     private World world;
     private final Array<Body> deathRow = new Array<Body>();
 
+    private final Map<UUID, PhysicsBodySnapshot> verifiedSnapshots = new HashMap<UUID, PhysicsBodySnapshot>();
+    private final Map<UUID, Array<PhysicsBodySnapshot>> unverifiedSnapshots = new HashMap<UUID, Array<PhysicsBodySnapshot>>();
+
     public void init() {
 
         world = new World(new Vector2(0, -25.0f), true);
         world.setContactListener(new CollisionHandler());
         deathRow.clear();
+    }
+
+    public void preUpdate() {
+        // save a snapshot for every physics entity
+        //previousFrame.px = simulation.px;
+        //previousFrame.py = simulation.py;
     }
 
     public void update(float delta) {
@@ -50,6 +62,44 @@ public class PhysicsManager implements EventSubscriber {
         }
     }
 
+    public void postUpdate() {
+        // resolve verified and unverified updates
+        //				SimulationSnapshot updateDelta = new SimulationSnapshot();
+//				updateDelta.timestamp = TimeUtils.nanoTime();
+//				updateDelta.px = simulation.px - previousFrame.px;
+//				updateDelta.py = simulation.py - previousFrame.py;
+
+//				if (updateDelta.px != 0) {
+//					unverifiedUpdates.add(updateDelta);
+//				}
+//
+//				// insert verified updates and reapply unverified updates
+//				if (verifiedUpdates.size > 0) {
+//					// get the timestamp of the verified update
+//					verifiedUpdate = verifiedUpdates.pop();
+//					verifiedUpdates.clear();
+//
+//					int index = 0;
+//					while (index < unverifiedUpdates.size) {
+//						SimulationSnapshot unverifiedUpdate = unverifiedUpdates.get(index);
+//
+//						if (unverifiedUpdate.timestamp <= (verifiedUpdate.timestamp) - network.getPing() + network.getServerTimeAdjustment()) {
+//							unverifiedUpdates.removeIndex(index);
+//						}
+//						else {
+//							verifiedUpdate.px += unverifiedUpdate.px;
+//							verifiedUpdate.py += unverifiedUpdate.py;
+//							index += 1;
+//						}
+//					}
+//
+//					// apply that to the simulation for rendering
+//					simulation.px = verifiedUpdate.px;
+//					simulation.py = verifiedUpdate.py;
+//
+//				}
+    }
+
     public void removeBody(Body b) {
         deathRow.add(b);
     }
@@ -65,5 +115,20 @@ public class PhysicsManager implements EventSubscriber {
     @Override
     public void handleEvent(Event event) {
 
+        if (event instanceof VerifiedPhysicsBodySnapshotEvent) {
+            VerifiedPhysicsBodySnapshotEvent verifiedPhysicsBodySnapshotEvent = (VerifiedPhysicsBodySnapshotEvent)event;
+            PhysicsBodySnapshot snapshot = verifiedPhysicsBodySnapshotEvent.snapshot;
+            verifiedSnapshots.put(snapshot.getUid(), snapshot);
+        }
+        else if (event instanceof UnverifiedPhysicsBodySnapshotEvent) {
+            UnverifiedPhysicsBodySnapshotEvent unverifiedPhysicsBodySnapshotEvent = (UnverifiedPhysicsBodySnapshotEvent)event;
+            PhysicsBodySnapshot snapshot = unverifiedPhysicsBodySnapshotEvent.snapshot;
+            UUID uid = snapshot.getUid();
+
+            if (!unverifiedSnapshots.containsKey(snapshot.getUid())) {
+                unverifiedSnapshots.put(uid, new Array<PhysicsBodySnapshot>());
+            }
+            unverifiedSnapshots.get(uid).add(snapshot);
+        }
     }
 }

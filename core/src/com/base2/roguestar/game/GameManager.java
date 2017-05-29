@@ -54,6 +54,10 @@ public class GameManager implements EventSubscriber {
         this.localPlayerUid = uid;
     }
 
+    public boolean isLocalPlayer(UUID uid) {
+        return uid == this.localPlayerUid;
+    }
+
     @Override
     public void handleEvent(Event event) {
         if (event instanceof AddPlayerEvent) {

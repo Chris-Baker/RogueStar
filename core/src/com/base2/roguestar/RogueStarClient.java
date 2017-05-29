@@ -4,9 +4,6 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.TimeUtils;
 import com.base2.roguestar.events.EventManager;
 import com.base2.roguestar.game.GameManager;
 import com.base2.roguestar.game.GameState;
@@ -14,8 +11,6 @@ import com.base2.roguestar.maps.MapManager;
 import com.base2.roguestar.entities.EntityManager;
 import com.base2.roguestar.network.NetworkClient;
 import com.base2.roguestar.physics.PhysicsManager;
-import com.base2.roguestar.physics.Simulation;
-import com.base2.roguestar.physics.SimulationSnapshot;
 import com.base2.roguestar.screens.PlayScreen;
 import com.base2.roguestar.screens.SetupScreen;
 import com.base2.roguestar.maps.CollisionLoader;
@@ -76,28 +71,10 @@ public class RogueStarClient extends Game {
 
 	private final OrthographicCamera camera = new OrthographicCamera();
 
-	// simulation
-	public Simulation simulation;
-	private Simulation previousFrame;
-	private Array<SimulationSnapshot> unverifiedUpdates;
-	public Array<SimulationSnapshot> verifiedUpdates;
-	private SimulationSnapshot verifiedUpdate;
-
-	// render
-	private ShapeRenderer shapeRenderer;
-	//public final OrthographicCamera camera  = new OrthographicCamera(640, 480);
-
 	private GameState gameState = null;
 
 	@Override
 	public void create() {
-
-		// these are left over from network POC and will be replaced by other game systems
-		//shapeRenderer = new ShapeRenderer();
-		simulation = new Simulation();
-		previousFrame = new Simulation();
-		unverifiedUpdates = new Array<SimulationSnapshot>();
-		verifiedUpdates = new Array<SimulationSnapshot>();
 
 		// provide all our managers to our locator
 		Locator.provide(events);
@@ -180,8 +157,7 @@ public class RogueStarClient extends Game {
 			case PLAYING:
 
 				// store our previous frame simulation so we can calculate the deltas of everything
-				previousFrame.px = simulation.px;
-				previousFrame.py = simulation.py;
+				physics.preUpdate();
 
 				// update managers
 				this.entities.update(deltaTime);
@@ -189,40 +165,7 @@ public class RogueStarClient extends Game {
 				this.network.update(deltaTime);
 
 				// store our update as an unverified update
-				SimulationSnapshot updateDelta = new SimulationSnapshot();
-				updateDelta.timestamp = TimeUtils.nanoTime();
-				updateDelta.px = simulation.px - previousFrame.px;
-				updateDelta.py = simulation.py - previousFrame.py;
-
-				if (updateDelta.px != 0) {
-					unverifiedUpdates.add(updateDelta);
-				}
-
-				// insert verified updates and reapply unverified updates
-				if (verifiedUpdates.size > 0) {
-					// get the timestamp of the verified update
-					verifiedUpdate = verifiedUpdates.pop();
-					verifiedUpdates.clear();
-
-					int index = 0;
-					while (index < unverifiedUpdates.size) {
-						SimulationSnapshot unverifiedUpdate = unverifiedUpdates.get(index);
-
-						if (unverifiedUpdate.timestamp <= (verifiedUpdate.timestamp) - network.getPing() + network.getServerTimeAdjustment()) {
-							unverifiedUpdates.removeIndex(index);
-						}
-						else {
-							verifiedUpdate.px += unverifiedUpdate.px;
-							verifiedUpdate.py += unverifiedUpdate.py;
-							index += 1;
-						}
-					}
-
-					// apply that to the simulation for rendering
-					simulation.px = verifiedUpdate.px;
-					simulation.py = verifiedUpdate.py;
-
-				}
+				physics.postUpdate();
 
 				break;
 
