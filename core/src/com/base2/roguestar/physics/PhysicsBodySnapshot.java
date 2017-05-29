@@ -30,17 +30,48 @@ public class PhysicsBodySnapshot {
     public PhysicsBodySnapshot getDelta(PhysicsBodySnapshot other) {
 
         PhysicsBodySnapshot delta = new PhysicsBodySnapshot();
-        delta.timestamp = other.timestamp;
-        delta.uid = other.uid;
-        delta.position.set(other.position.sub(position));
-        delta.linearVelocity.set(other.linearVelocity.sub(linearVelocity));
-        delta.angularVelocity = other.angularVelocity - angularVelocity;
-        delta.angle = other.angle - angle;
+        delta.timestamp = timestamp;
+        delta.uid = uid;
+        delta.position.set(position.sub(other.position));
+        delta.linearVelocity.set(linearVelocity.sub(other.linearVelocity));
+        delta.angularVelocity = angularVelocity - other.angularVelocity;
+        delta.angle = angle - other.angle;
 
         return delta;
     }
 
+    public void applyDelta(PhysicsBodySnapshot delta) {
+        this.position.add(delta.position);
+        this.linearVelocity.add(delta.linearVelocity);
+        this.angularVelocity += delta.angularVelocity;
+        this.angle += delta.angle;
+    }
+
     public UUID getUid() {
         return UUID.fromString(uid);
+    }
+
+    public float getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(float timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public Vector2 getPosition() {
+        return position;
+    }
+
+    public Vector2 getLinearVelocity() {
+        return linearVelocity;
+    }
+
+    public float getAngularVelocity() {
+        return angularVelocity;
+    }
+
+    public float getAngle() {
+        return angle;
     }
 }

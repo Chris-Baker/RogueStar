@@ -15,5 +15,4 @@ public class CharacterComponent implements Component {
     public Fixture physicsFixture;
     public Fixture sensorFixture;
     public boolean isGrounded = false;
-    public final Array<PhysicsBodySnapshot> snapshots = new Array<PhysicsBodySnapshot>();
 }
