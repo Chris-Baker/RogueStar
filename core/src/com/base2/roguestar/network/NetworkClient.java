@@ -1,8 +1,10 @@
 package com.base2.roguestar.network;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.base2.roguestar.events.messages.AddPlayerEvent;
+import com.base2.roguestar.events.messages.VerifiedPhysicsBodySnapshotEvent;
 import com.base2.roguestar.game.GameState;
 import com.base2.roguestar.RogueStarClient;
 import com.base2.roguestar.events.Event;
@@ -12,7 +14,7 @@ import com.base2.roguestar.events.messages.CreateEntityEvent;
 import com.base2.roguestar.events.messages.PlayerInputEvent;
 import com.base2.roguestar.maps.MapManager;
 import com.base2.roguestar.network.messages.*;
-import com.base2.roguestar.physics.SimulationSnapshot;
+import com.base2.roguestar.physics.PhysicsBodySnapshot;
 import com.base2.roguestar.utils.Locator;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.Client;
@@ -43,7 +45,7 @@ public class NetworkClient implements EventSubscriber {
             Kryo kryo = client.getKryo();
             kryo.register(TextMessage.class);
             kryo.register(CharacterControllerMessage.class);
-            kryo.register(PhysicsBodyMessage.class);
+            kryo.register(PhysicsBodySnapshotMessage.class);
             kryo.register(SyncSimulationRequestMessage.class);
             kryo.register(SyncSimulationResponseMessage.class);
             kryo.register(Ping.class);
@@ -51,6 +53,8 @@ public class NetworkClient implements EventSubscriber {
             kryo.register(SetMapMessage.class);
             kryo.register(CreateEntityMessage.class);
             kryo.register(JoinAsPlayerMessage.class);
+            kryo.register(PhysicsBodySnapshot.class);
+            kryo.register(Vector2.class);
 
             client.addListener(new Listener() {
 
@@ -75,20 +79,22 @@ public class NetworkClient implements EventSubscriber {
                     }
                     else if (object instanceof SyncSimulationResponseMessage) {
                         SyncSimulationResponseMessage response = (SyncSimulationResponseMessage)object;
-                        game.simulation.px = response.x;
-                        game.simulation.py = response.y;
                     }
                     else if (object instanceof TextMessage) {
                         TextMessage response = (TextMessage)object;
                         System.out.println(response.message);
                     }
-                    else if (object instanceof PhysicsBodyMessage) {
-                        PhysicsBodyMessage response = (PhysicsBodyMessage)object;
-                        SimulationSnapshot verifiedUpdate = new SimulationSnapshot();
-                        verifiedUpdate.timestamp = response.timestamp;
-                        verifiedUpdate.px = response.x;
-                        verifiedUpdate.py = response.y;
-                        game.verifiedUpdates.add(verifiedUpdate);
+                    else if (object instanceof PhysicsBodySnapshotMessage) {
+                        PhysicsBodySnapshotMessage response = (PhysicsBodySnapshotMessage)object;
+                        final PhysicsBodySnapshot verifiedSnapshot = response.snapshot;
+
+                        Gdx.app.postRunnable(new Runnable() {
+                            public void run() {
+                                VerifiedPhysicsBodySnapshotEvent event = new VerifiedPhysicsBodySnapshotEvent();
+                                event.snapshot = verifiedSnapshot;
+                                events.queue(event);
+                            }
+                        });
                     }
                     else if (object instanceof SetMapMessage) {
                         SetMapMessage request = (SetMapMessage) object;

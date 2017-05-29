@@ -2,7 +2,9 @@ package com.base2.roguestar.entities;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.core.PooledEngine;
+import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.base2.roguestar.entities.systems.CameraSystem;
 import com.base2.roguestar.entities.systems.MovementSystem;
@@ -76,6 +78,10 @@ public class EntityManager implements EventSubscriber {
 
     public boolean entityExists(UUID uid) {
         return uidToEntity.containsKey(uid);
+    }
+
+    public ImmutableArray<Entity> getEntitiesFor(Family family) {
+        return engine.getEntitiesFor(family);
     }
 
     @Override
