@@ -1,14 +1,20 @@
 package com.base2.roguestar.physics;
 
+import com.badlogic.ashley.core.ComponentMapper;
+import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
+import com.base2.roguestar.entities.EntityManager;
+import com.base2.roguestar.entities.components.CharacterComponent;
 import com.base2.roguestar.events.Event;
 import com.base2.roguestar.events.EventSubscriber;
 import com.base2.roguestar.events.messages.UnverifiedPhysicsBodySnapshotEvent;
 import com.base2.roguestar.events.messages.VerifiedPhysicsBodySnapshotEvent;
 import com.base2.roguestar.utils.Config;
+import com.base2.roguestar.utils.Locator;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,20 +34,33 @@ public class PhysicsManager implements EventSubscriber {
     private World world;
     private final Array<Body> deathRow = new Array<Body>();
 
+    private final Map<UUID, PhysicsBodySnapshot> previousFrame = new HashMap<UUID, PhysicsBodySnapshot>();
     private final Map<UUID, PhysicsBodySnapshot> verifiedSnapshots = new HashMap<UUID, PhysicsBodySnapshot>();
     private final Map<UUID, Array<PhysicsBodySnapshot>> unverifiedSnapshots = new HashMap<UUID, Array<PhysicsBodySnapshot>>();
 
-    public void init() {
+    private EntityManager entities;
+    private ComponentMapper<CharacterComponent> physicsMapper;
 
+    public void init() {
         world = new World(new Vector2(0, -25.0f), true);
         world.setContactListener(new CollisionHandler());
         deathRow.clear();
+        physicsMapper = ComponentMapper.getFor(CharacterComponent.class);
+        entities = Locator.getEntityManager();
     }
 
     public void preUpdate() {
+
+        // clear the frame store
+        previousFrame.clear();
+
         // save a snapshot for every physics entity
-        //previousFrame.px = simulation.px;
-        //previousFrame.py = simulation.py;
+        for (Entity entity: entities.getEntitiesFor(Family.all(CharacterComponent.class).get())) {
+            CharacterComponent cc = physicsMapper.get(entity);
+            Body body = cc.body;
+            PhysicsBodySnapshot snapshot = new PhysicsBodySnapshot(body, entities.getUUID(entity));
+            previousFrame.put(snapshot.getUid(), snapshot);
+        }
     }
 
     public void update(float delta) {
@@ -63,41 +82,34 @@ public class PhysicsManager implements EventSubscriber {
     }
 
     public void postUpdate() {
-        // resolve verified and unverified updates
-        //				SimulationSnapshot updateDelta = new SimulationSnapshot();
-//				updateDelta.timestamp = TimeUtils.nanoTime();
-//				updateDelta.px = simulation.px - previousFrame.px;
-//				updateDelta.py = simulation.py - previousFrame.py;
 
-//				if (updateDelta.px != 0) {
-//					unverifiedUpdates.add(updateDelta);
-//				}
-//
-//				// insert verified updates and reapply unverified updates
-//				if (verifiedUpdates.size > 0) {
-//					// get the timestamp of the verified update
-//					verifiedUpdate = verifiedUpdates.pop();
-//					verifiedUpdates.clear();
-//
-//					int index = 0;
-//					while (index < unverifiedUpdates.size) {
-//						SimulationSnapshot unverifiedUpdate = unverifiedUpdates.get(index);
-//
-//						if (unverifiedUpdate.timestamp <= (verifiedUpdate.timestamp) - network.getPing() + network.getServerTimeAdjustment()) {
-//							unverifiedUpdates.removeIndex(index);
-//						}
-//						else {
-//							verifiedUpdate.px += unverifiedUpdate.px;
-//							verifiedUpdate.py += unverifiedUpdate.py;
-//							index += 1;
-//						}
-//					}
-//
-//					// apply that to the simulation for rendering
-//					simulation.px = verifiedUpdate.px;
-//					simulation.py = verifiedUpdate.py;
-//
-//				}
+        for (Entity entity: entities.getEntitiesFor(Family.all(CharacterComponent.class).get())) {
+
+            UUID uid = entities.getUUID(entity);
+
+            if (verifiedSnapshots.containsKey(uid) && unverifiedSnapshots.containsKey(uid)) {
+
+                PhysicsBodySnapshot verifiedSnapshot = verifiedSnapshots.remove(uid);
+
+                int index = 0;
+                while (index < unverifiedSnapshots.get(uid).size) {
+                    PhysicsBodySnapshot unverifiedSnapshot = unverifiedSnapshots.get(uid).get(index);
+
+                    if (unverifiedSnapshot.getTimestamp() <= verifiedSnapshot.getTimestamp()) {
+                        unverifiedSnapshots.get(uid).removeIndex(index);
+                    }
+                    else {
+                        verifiedSnapshot.applyDelta(unverifiedSnapshot.getDelta(previousFrame.get(uid)));
+                        index += 1;
+                    }
+                }
+
+                Body body = physicsMapper.get(entity).body;
+                body.setTransform(verifiedSnapshot.getPosition(), verifiedSnapshot.getAngle());
+                body.setLinearVelocity(verifiedSnapshot.getLinearVelocity());
+                body.setAngularVelocity(verifiedSnapshot.getAngularVelocity());
+            }
+        }
     }
 
     public void removeBody(Body b) {

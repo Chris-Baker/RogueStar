@@ -243,7 +243,6 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 						CharacterComponent cc = physicsMapper.get(entity);
 						Body body = cc.body;
 						PhysicsBodySnapshot bodySnapshot = new PhysicsBodySnapshot(body, entities.getUUID(entity));
-						cc.snapshots.add(bodySnapshot);
 
 						PhysicsBodySnapshotMessage response = new PhysicsBodySnapshotMessage();
 						response.timestamp = TimeUtils.nanoTime();
