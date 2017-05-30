@@ -3,15 +3,12 @@ package com.base2.roguestar.network;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.base2.roguestar.events.messages.AddPlayerEvent;
-import com.base2.roguestar.events.messages.VerifiedPhysicsBodySnapshotEvent;
+import com.base2.roguestar.events.messages.*;
 import com.base2.roguestar.game.GameState;
 import com.base2.roguestar.RogueStarClient;
 import com.base2.roguestar.events.Event;
 import com.base2.roguestar.events.EventManager;
 import com.base2.roguestar.events.EventSubscriber;
-import com.base2.roguestar.events.messages.CreateEntityEvent;
-import com.base2.roguestar.events.messages.PlayerInputEvent;
 import com.base2.roguestar.maps.MapManager;
 import com.base2.roguestar.network.messages.*;
 import com.base2.roguestar.physics.PhysicsBodySnapshot;
@@ -55,6 +52,7 @@ public class NetworkClient implements EventSubscriber {
             kryo.register(JoinAsPlayerMessage.class);
             kryo.register(PhysicsBodySnapshot.class);
             kryo.register(Vector2.class);
+            kryo.register(PlayerReadyMessage.class);
 
             client.addListener(new Listener() {
 
@@ -99,13 +97,9 @@ public class NetworkClient implements EventSubscriber {
                     }
                     else if (object instanceof SetMapMessage) {
                         SetMapMessage request = (SetMapMessage) object;
-                        final String mapName = request.mapName;
-                        Gdx.app.postRunnable(new Runnable() {
-                            public void run() {
-                                maps.load(mapName);
-                                game.setState(GameState.LOADING);
-                            }
-                        });
+                        SetMapEvent event = new SetMapEvent();
+                        event.mapName = request.mapName;
+                        events.queue(event);
                     }
                     else if (object instanceof CreateEntityMessage) {
                         CreateEntityMessage request = (CreateEntityMessage)object;
@@ -123,6 +117,14 @@ public class NetworkClient implements EventSubscriber {
                         AddPlayerEvent event = new AddPlayerEvent();
                         event.uid = UUID.fromString(request.uid);
                         event.isLocalPlayer = request.isLocalPlayer;
+                        events.queue(event);
+
+                        System.out.println("Player: " + event.uid + " " + event.isLocalPlayer);
+                    }
+                    else if (object instanceof PlayerReadyMessage) {
+                        PlayerReadyMessage request = (PlayerReadyMessage) object;
+                        PlayerReadyEvent event = new PlayerReadyEvent();
+                        event.uid = request.uid;
                         events.queue(event);
                     }
                 }
