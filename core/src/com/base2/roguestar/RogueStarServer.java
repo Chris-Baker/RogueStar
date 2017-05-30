@@ -15,6 +15,8 @@ import com.base2.roguestar.events.Event;
 import com.base2.roguestar.events.EventManager;
 import com.base2.roguestar.events.EventSubscriber;
 import com.base2.roguestar.events.messages.EntityCreatedEvent;
+import com.base2.roguestar.events.messages.PlayerReadyEvent;
+import com.base2.roguestar.events.messages.SetGameStateEvent;
 import com.base2.roguestar.game.GameManager;
 import com.base2.roguestar.game.GameState;
 import com.base2.roguestar.game.Player;
@@ -93,6 +95,7 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 		// subscribe to events
 		events.subscribe(physics);
 		events.subscribe(entities);
+		events.subscribe(game);
 		events.subscribe(this);
 
 		physicsMapper = ComponentMapper.getFor(CharacterComponent.class);
@@ -113,6 +116,7 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 			kryo.register(JoinAsPlayerMessage.class);
 			kryo.register(PhysicsBodySnapshot.class);
 			kryo.register(Vector2.class);
+			kryo.register(PlayerReadyMessage.class);
 
 			server.start();
 			server.bind(54555, 54777);
@@ -152,32 +156,41 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 							}
 						});
 					}
+					else if (object instanceof PlayerReadyMessage) {
+						PlayerReadyMessage request = (PlayerReadyMessage)object;
+						PlayerReadyEvent event = new PlayerReadyEvent();
+						event.uid = request.uid;
+						events.queue(event);
+						server.sendToAllTCP(request);
+					}
 					else if (object instanceof SetMapMessage) {
 						SetMapMessage request = (SetMapMessage) object;
 						final String mapName = request.mapName;
 						Gdx.app.postRunnable(new Runnable() {
 							public void run() {
-								maps.load(mapName);
-								RogueStarServer.this.setState(GameState.LOADING);
+								game.setMap(mapName);
 							}
 						});
 						server.sendToAllTCP(request);
 					}
 					else if (object instanceof JoinAsPlayerMessage) {
-						JoinAsPlayerMessage request = (JoinAsPlayerMessage)object;
 
 						// create a new player and add it to the game manager
-						Player player = new Player();
-						game.addPlayer(player);
+						Player newPlayer = new Player();
+						game.addPlayer(newPlayer);
 
-						// send the player uid back to the requester
-						request.uid = player.getUid().toString();
-						request.isLocalPlayer = true;
-						connection.sendUDP(request);
 
-						// send player to all other connections
+						// send all joined players to the new player
+						for (Player player: game.getPlayers()) {
+							JoinAsPlayerMessage request = new JoinAsPlayerMessage();
+							request.uid = player.getUid().toString();
+							request.isLocalPlayer = player.getUid().toString().equals(newPlayer.getUid().toString());
+							connection.sendUDP(request);
+						}
+
+						// send the new player to all other players
 						JoinAsPlayerMessage response = new JoinAsPlayerMessage();
-						response.uid = player.getUid().toString();
+						response.uid = newPlayer.getUid().toString();
 						response.isLocalPlayer = false;
 						server.sendToAllExceptUDP(connection.getID(), response);
 					}
@@ -278,6 +291,7 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 
 			case LOADING:
 				System.out.println("Set state: Loading");
+				maps.load(game.getMap());
 				break;
 
 			case PLAYING:
@@ -303,6 +317,10 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 			request.y = ce.y;
 			request.rotation = ce.rotation;
 			server.sendToAllTCP(request);
+		}
+		if (event instanceof SetGameStateEvent) {
+			SetGameStateEvent setGameStateEvent = (SetGameStateEvent)event;
+			this.setState(setGameStateEvent.state);
 		}
 	}
 }

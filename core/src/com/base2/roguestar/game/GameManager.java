@@ -1,17 +1,21 @@
 package com.base2.roguestar.game;
 
+import com.base2.roguestar.RogueStarServer;
 import com.base2.roguestar.entities.EntityManager;
 import com.base2.roguestar.events.Event;
+import com.base2.roguestar.events.EventManager;
 import com.base2.roguestar.events.EventSubscriber;
 import com.base2.roguestar.events.messages.AddPlayerEvent;
+import com.base2.roguestar.events.messages.PlayerReadyEvent;
+import com.base2.roguestar.events.messages.SetGameStateEvent;
+import com.base2.roguestar.events.messages.SetMapEvent;
 import com.base2.roguestar.utils.Locator;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class GameManager implements EventSubscriber {
 
+    private EventManager events;
     private EntityManager entities;
     private Map<UUID, Player> players;
     private UUID localPlayerUid;
@@ -22,14 +26,15 @@ public class GameManager implements EventSubscriber {
     }
 
     public void init() {
+        this.events = Locator.getEventManager();
         this.entities = Locator.getEntityManager();
     }
 
-    public String getMapPath() {
+    public String getMap() {
         return mapPath;
     }
 
-    public void setMapPath(String mapPath) {
+    public void setMap(String mapPath) {
         this.mapPath = mapPath;
     }
 
@@ -69,6 +74,20 @@ public class GameManager implements EventSubscriber {
                 this.setLocalPlayerUid(addPlayer.uid);
             }
         }
+        else if (event instanceof PlayerReadyEvent) {
+            PlayerReadyEvent playerReadyEvent = (PlayerReadyEvent)event;
+            setPlayerReady(UUID.fromString(playerReadyEvent.uid), true);
+
+            if (allReady()) {
+                SetGameStateEvent setGameStateEvent = new SetGameStateEvent();
+                setGameStateEvent.state = GameState.LOADING;
+                events.queue(setGameStateEvent);
+            }
+        }
+        else if (event instanceof SetMapEvent) {
+            SetMapEvent setMapEvent = (SetMapEvent)event;
+            setMap(setMapEvent.mapName);
+        }
     }
 
     public UUID getUnspawnedPlayerUid() {
@@ -78,5 +97,24 @@ public class GameManager implements EventSubscriber {
             }
         }
         return null;
+    }
+
+    public void setPlayerReady(UUID uid, boolean isReady) {
+        players.get(uid).setReady(isReady);
+    }
+
+    public boolean allReady() {
+        boolean allReady = true;
+        for (Player player: players.values()) {
+            if (!player.isReady()) {
+                allReady = false;
+                break;
+            }
+        }
+        return allReady;
+    }
+
+    public Collection<Player> getPlayers() {
+        return players.values();
     }
 }

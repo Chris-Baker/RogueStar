@@ -5,9 +5,11 @@ import java.util.UUID;
 public class Player {
 
     private UUID uid;
+    private boolean isReady;
 
     public Player() {
         this.uid = UUID.randomUUID();
+        this.isReady = false;
     }
 
     public Player(UUID uid) {
@@ -20,5 +22,13 @@ public class Player {
 
     public UUID getUid() {
         return uid;
+    }
+
+    public void setReady(boolean isReady) {
+        this.isReady = isReady;
+    }
+
+    public boolean isReady() {
+        return isReady;
     }
 }

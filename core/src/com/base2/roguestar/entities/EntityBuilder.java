@@ -105,9 +105,16 @@ public class EntityBuilder {
         if (entities.getUUID(e).equals(game.getLocalPlayerUid())) {
             cc.controller = new KeyboardController();
             Gdx.input.setInputProcessor((InputProcessor) cc.controller);
+
+            // follow camera for local player
+            CameraComponent cameraComponent = entities.createComponent(CameraComponent.class);
+            e.add(cameraComponent);
+
+            System.out.println("local player " + entities.getUUID(e));
         }
         else {
             cc.controller = new NetworkController();
+            System.out.println("network player " + entities.getUUID(e));
         }
 
         e.add(cc);
@@ -116,10 +123,6 @@ public class EntityBuilder {
         RunSpeedComponent rc = entities.createComponent(RunSpeedComponent.class);
         rc.runSpeed = 750;
         e.add(rc);
-
-        // follow camera
-        CameraComponent cameraComponent = entities.createComponent(CameraComponent.class);
-        e.add(cameraComponent);
 
 
         // Player animation component

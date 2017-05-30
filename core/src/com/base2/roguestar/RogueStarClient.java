@@ -4,7 +4,10 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.base2.roguestar.events.Event;
 import com.base2.roguestar.events.EventManager;
+import com.base2.roguestar.events.EventSubscriber;
+import com.base2.roguestar.events.messages.SetGameStateEvent;
 import com.base2.roguestar.game.GameManager;
 import com.base2.roguestar.game.GameState;
 import com.base2.roguestar.maps.MapManager;
@@ -16,7 +19,7 @@ import com.base2.roguestar.screens.SetupScreen;
 import com.base2.roguestar.maps.CollisionLoader;
 import com.base2.roguestar.utils.Locator;
 
-public class RogueStarClient extends Game {
+public class RogueStarClient extends Game implements EventSubscriber {
 
 	// build a very basic set of screens which map one to one with the major game states
 	// the screens should just be dumb views so that the server can more easily remain separated.
@@ -88,6 +91,7 @@ public class RogueStarClient extends Game {
 		physics.init();
 		entities.init();
 		entities.setCamera(this.camera);
+		game.init();
 
 		// subscribe to managers events
 		events.subscribe(network);
@@ -95,6 +99,7 @@ public class RogueStarClient extends Game {
 		events.subscribe(entities);
 		events.subscribe(maps);
 		events.subscribe(game);
+		events.subscribe(this);
 
 		// set our starting game state and screen
 		setState(GameState.SETUP);
@@ -127,7 +132,6 @@ public class RogueStarClient extends Game {
 
 				// player is configured with the server
 
-
 				// wait for user to click ready
 
 				// wait for server to signal all ready
@@ -136,21 +140,7 @@ public class RogueStarClient extends Game {
 
 			case LOADING:
 
-				// network client initiates the map load and game state change in message handler
-				// server sends map to load
-				// load map
-
-				// load static collision bodies
-				CollisionLoader.load(maps.getMap(), physics.getWorld());
-
-				// server sends entities to load
-
-				// we need to know which entities are the players
-
-				// server signals map loaded
-				// we can just set the state for now
-				setState(GameState.PLAYING);
-				setScreen(new PlayScreen(camera));
+				// all in on enter state currently
 
 				break;
 
@@ -213,6 +203,22 @@ public class RogueStarClient extends Game {
 
 			case LOADING:
 				System.out.println("Set state: Loading");
+
+				// network client initiates the map load and game state change in message handler
+				// server sends map to load
+				maps.load(game.getMap());
+
+				// load static collision bodies
+				CollisionLoader.load(maps.getMap(), physics.getWorld());
+
+				// server sends entities to load
+
+				// we need to know which entities are the players
+
+				// server signals map loaded
+				// we can just set the state for now
+				setState(GameState.PLAYING);
+				setScreen(new PlayScreen(camera));
 				break;
 
 			case PLAYING:
@@ -226,4 +232,12 @@ public class RogueStarClient extends Game {
 
 	}
 
+	@Override
+	public void handleEvent(Event event) {
+
+		if (event instanceof SetGameStateEvent) {
+			SetGameStateEvent setGameStateEvent = (SetGameStateEvent)event;
+			this.setState(setGameStateEvent.state);
+		}
+	}
 }
