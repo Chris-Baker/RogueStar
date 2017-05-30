@@ -92,7 +92,8 @@ public class GameManager implements EventSubscriber {
 
     public UUID getUnspawnedPlayerUid() {
         for (Player player : players.values()) {
-            if (!entities.entityExists(player.getUid())) {
+            if (!player.isSpawned()) {
+                player.setSpawned(true);
                 return player.getUid();
             }
         }
