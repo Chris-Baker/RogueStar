@@ -86,7 +86,19 @@ public class PhysicsManager implements EventSubscriber {
         for (Entity entity: entities.getEntitiesFor(Family.all(CharacterComponent.class).get())) {
 
             UUID uid = entities.getUUID(entity);
+            Body body = physicsMapper.get(entity).body;
 
+            if (body.isAwake()) {
+                // generate unverified snapshots based on this physics update
+                PhysicsBodySnapshot unverifiedSnapshot = new PhysicsBodySnapshot(body, uid).getDelta(previousFrame.get(uid));
+
+                if (!unverifiedSnapshots.containsKey(uid)) {
+                    unverifiedSnapshots.put(uid, new Array<PhysicsBodySnapshot>());
+                }
+                unverifiedSnapshots.get(uid).add(unverifiedSnapshot);
+            }
+
+            // resolve any verified snapshots we have received
             if (verifiedSnapshots.containsKey(uid)) {
 
                 PhysicsBodySnapshot verifiedSnapshot = verifiedSnapshots.remove(uid);
@@ -100,18 +112,19 @@ public class PhysicsManager implements EventSubscriber {
 
                         if (unverifiedSnapshot.getTimestamp() <= verifiedSnapshot.getTimestamp()) {
                             unverifiedSnapshots.get(uid).removeIndex(index);
+                            System.out.println("Dropped old unverified update");
                         }
                         else {
-                            verifiedSnapshot.applyDelta(unverifiedSnapshot.getDelta(previousFrame.get(uid)));
+                            //verifiedSnapshot.applyDelta(unverifiedSnapshot);
+                            System.out.println("x: " + unverifiedSnapshot.getX() + ", y: " + unverifiedSnapshot.getY());
                             index += 1;
                         }
                     }
                 }
 
                 // update our body with the state form the server
-                Body body = physicsMapper.get(entity).body;
-                body.setTransform(verifiedSnapshot.getPosition(), verifiedSnapshot.getAngle());
-                body.setLinearVelocity(verifiedSnapshot.getLinearVelocity());
+                body.setTransform(verifiedSnapshot.getX(), verifiedSnapshot.getY(), verifiedSnapshot.getAngle());
+                body.setLinearVelocity(verifiedSnapshot.getVX(), verifiedSnapshot.getVY());
                 body.setAngularVelocity(verifiedSnapshot.getAngularVelocity());
             }
         }
@@ -137,15 +150,15 @@ public class PhysicsManager implements EventSubscriber {
             PhysicsBodySnapshot snapshot = verifiedPhysicsBodySnapshotEvent.snapshot;
             verifiedSnapshots.put(snapshot.getUid(), snapshot);
         }
-        else if (event instanceof UnverifiedPhysicsBodySnapshotEvent) {
-            UnverifiedPhysicsBodySnapshotEvent unverifiedPhysicsBodySnapshotEvent = (UnverifiedPhysicsBodySnapshotEvent)event;
-            PhysicsBodySnapshot snapshot = unverifiedPhysicsBodySnapshotEvent.snapshot;
-            UUID uid = snapshot.getUid();
-
-            if (!unverifiedSnapshots.containsKey(snapshot.getUid())) {
-                unverifiedSnapshots.put(uid, new Array<PhysicsBodySnapshot>());
-            }
-            unverifiedSnapshots.get(uid).add(snapshot);
-        }
+//        else if (event instanceof UnverifiedPhysicsBodySnapshotEvent) {
+//            UnverifiedPhysicsBodySnapshotEvent unverifiedPhysicsBodySnapshotEvent = (UnverifiedPhysicsBodySnapshotEvent)event;
+//            PhysicsBodySnapshot snapshot = unverifiedPhysicsBodySnapshotEvent.snapshot;
+//            UUID uid = snapshot.getUid();
+//
+//            if (!unverifiedSnapshots.containsKey(uid)) {
+//                unverifiedSnapshots.put(uid, new Array<PhysicsBodySnapshot>());
+//            }
+//            unverifiedSnapshots.get(uid).add(snapshot);
+//        }
     }
 }
