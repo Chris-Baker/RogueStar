@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.base2.roguestar.controllers.CharacterController;
+import com.base2.roguestar.controllers.KeyboardController;
 import com.base2.roguestar.entities.components.ControllerComponent;
 import com.base2.roguestar.entities.components.CharacterComponent;
 import com.base2.roguestar.entities.components.RunSpeedComponent;

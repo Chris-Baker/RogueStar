@@ -10,8 +10,10 @@ public class PhysicsBodySnapshot {
 
     private float timestamp;
     private String uid;
-    private Vector2 position = new Vector2();
-    private Vector2 linearVelocity = new Vector2();
+    private float x;
+    private float y;
+    private float vx;
+    private float vy;
     private float angularVelocity;
     private float angle;
 
@@ -21,8 +23,10 @@ public class PhysicsBodySnapshot {
     public PhysicsBodySnapshot(Body body, UUID uid) {
         this.timestamp = TimeUtils.nanoTime();
         this.uid = uid.toString();
-        this.position.set(body.getPosition());
-        this.linearVelocity.set(body.getLinearVelocity());
+        this.x = body.getPosition().x;
+        this.y = body.getPosition().y;
+        this.vx = body.getLinearVelocity().x;
+        this.vy = body.getLinearVelocity().y;
         this.angularVelocity = body.getAngularVelocity();
         this.angle = body.getAngle();
     }
@@ -32,8 +36,10 @@ public class PhysicsBodySnapshot {
         PhysicsBodySnapshot delta = new PhysicsBodySnapshot();
         delta.timestamp = timestamp;
         delta.uid = uid;
-        delta.position.set(position.sub(other.position));
-        delta.linearVelocity.set(linearVelocity.sub(other.linearVelocity));
+        delta.x = x - other.x;
+        delta.y = y - other.y;
+        delta.vx = vx - other.vx;
+        delta.vy = vy - other.vy;
         delta.angularVelocity = angularVelocity - other.angularVelocity;
         delta.angle = angle - other.angle;
 
@@ -41,8 +47,10 @@ public class PhysicsBodySnapshot {
     }
 
     public void applyDelta(PhysicsBodySnapshot delta) {
-        this.position.add(delta.position);
-        this.linearVelocity.add(delta.linearVelocity);
+        this.x += delta.x;
+        this.y += delta.y;
+        this.vx += delta.vx;
+        this.vy += delta.vy;
         this.angularVelocity += delta.angularVelocity;
         this.angle += delta.angle;
     }
@@ -59,12 +67,20 @@ public class PhysicsBodySnapshot {
         this.timestamp = timestamp;
     }
 
-    public Vector2 getPosition() {
-        return position;
+    public float getX() {
+        return x;
     }
 
-    public Vector2 getLinearVelocity() {
-        return linearVelocity;
+    public float getY() {
+        return y;
+    }
+
+    public float getVX() {
+        return vx;
+    }
+
+    public float getVY() {
+        return vy;
     }
 
     public float getAngularVelocity() {
