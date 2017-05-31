@@ -87,23 +87,28 @@ public class PhysicsManager implements EventSubscriber {
 
             UUID uid = entities.getUUID(entity);
 
-            if (verifiedSnapshots.containsKey(uid) && unverifiedSnapshots.containsKey(uid)) {
+            if (verifiedSnapshots.containsKey(uid)) {
 
                 PhysicsBodySnapshot verifiedSnapshot = verifiedSnapshots.remove(uid);
 
-                int index = 0;
-                while (index < unverifiedSnapshots.get(uid).size) {
-                    PhysicsBodySnapshot unverifiedSnapshot = unverifiedSnapshots.get(uid).get(index);
+                // if we have any client side state updates not verified by the server then we can apply
+                // those deltas to the verified state given to us by the server
+                if (unverifiedSnapshots.containsKey(uid)) {
+                    int index = 0;
+                    while (index < unverifiedSnapshots.get(uid).size) {
+                        PhysicsBodySnapshot unverifiedSnapshot = unverifiedSnapshots.get(uid).get(index);
 
-                    if (unverifiedSnapshot.getTimestamp() <= verifiedSnapshot.getTimestamp()) {
-                        unverifiedSnapshots.get(uid).removeIndex(index);
-                    }
-                    else {
-                        verifiedSnapshot.applyDelta(unverifiedSnapshot.getDelta(previousFrame.get(uid)));
-                        index += 1;
+                        if (unverifiedSnapshot.getTimestamp() <= verifiedSnapshot.getTimestamp()) {
+                            unverifiedSnapshots.get(uid).removeIndex(index);
+                        }
+                        else {
+                            verifiedSnapshot.applyDelta(unverifiedSnapshot.getDelta(previousFrame.get(uid)));
+                            index += 1;
+                        }
                     }
                 }
 
+                // update our body with the state form the server
                 Body body = physicsMapper.get(entity).body;
                 body.setTransform(verifiedSnapshot.getPosition(), verifiedSnapshot.getAngle());
                 body.setLinearVelocity(verifiedSnapshot.getLinearVelocity());
