@@ -66,7 +66,7 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 	private final MapManager maps = new MapManager();
 	private final GameManager game = new GameManager();
 
-	private static final float NETWORK_UPDATE_RATE = 1 / 10.0f;
+	private static final float NETWORK_UPDATE_RATE = 1 / 1.0f;
 	private float accum = 0;
 
 	private ComponentMapper<CharacterComponent> physicsMapper;
