@@ -70,7 +70,7 @@ public class NetworkClient implements EventSubscriber {
                         Ack response = (Ack)object;
                         NetworkClient.this.ping = (TimeUtils.nanoTime() - response.clientSentTime);
                         serverTimeAdjustment = (response.timestamp - (NetworkClient.this.ping)) - response.clientSentTime; // should this be ping / 2?
-//                        System.out.println("Ping: " + TimeUtils.nanosToMillis((NetworkClient.this.ping)));
+//                        System.out.println("Ping: " + NetworkClient.this.ping);
 //                        System.out.println("NetworkClient Time: " + TimeUtils.nanosToMillis(TimeUtils.nanoTime()));
 //                        System.out.println("Server Time: " + TimeUtils.nanosToMillis((response.timestamp - (NetworkClient.this.ping / 2))));
 //                        System.out.println("Difference: " + TimeUtils.nanosToMillis(serverTimeAdjustment));
