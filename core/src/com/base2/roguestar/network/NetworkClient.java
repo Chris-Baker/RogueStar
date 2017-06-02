@@ -85,7 +85,7 @@ public class NetworkClient implements EventSubscriber {
                     else if (object instanceof PhysicsBodySnapshotMessage) {
                         PhysicsBodySnapshotMessage response = (PhysicsBodySnapshotMessage)object;
                         final PhysicsBodySnapshot verifiedSnapshot = response.snapshot;
-                        verifiedSnapshot.setTimestamp(verifiedSnapshot.getTimestamp() - getPing() + getServerTimeAdjustment());
+                        verifiedSnapshot.setTimestamp(verifiedSnapshot.getTimestamp() - (getPing() / 2) + getServerTimeAdjustment());
 
                         Gdx.app.postRunnable(new Runnable() {
                             public void run() {
