@@ -72,7 +72,8 @@ public class EntityBuilder {
         CharacterComponent pc = entities.createComponent(CharacterComponent.class);
 
         BodyDef def = new BodyDef();
-        def.type = BodyDef.BodyType.DynamicBody;
+        //def.type = BodyDef.BodyType.DynamicBody;
+        def.type = BodyDef.BodyType.KinematicBody;
         def.fixedRotation = true;
         Body body = physics.getWorld().createBody(def);
 

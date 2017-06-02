@@ -53,6 +53,10 @@ public class MovementSystem extends IteratingSystem {
         Vector2 vel = body.getLinearVelocity();
         Vector2 pos = body.getPosition();
 
+//        if (controller instanceof KeyboardController) {
+//            return;
+//        }
+
         //System.out.println(pos.x + ", " + pos.y);
 
         //System.out.println(p.isGrounded);
@@ -65,6 +69,8 @@ public class MovementSystem extends IteratingSystem {
 //            }
 //        }
 
+        body.setLinearVelocity(0, vel.y);
+
         // cap max velocity on x
         if (Math.abs(vel.x) > MAX_VELOCITY) {
             vel.x = Math.signum(vel.x) * MAX_VELOCITY;
@@ -74,7 +80,7 @@ public class MovementSystem extends IteratingSystem {
         // calculate stilltime & damp
         if (!controller.moveLeft && !controller.moveRight) {
             stillTime += deltaTime;
-            body.setLinearVelocity(vel.x * 0.9f, vel.y);
+            //body.setLinearVelocity(vel.x * 0.9f, vel.y);
         }
         else {
             stillTime = 0;
@@ -101,12 +107,14 @@ public class MovementSystem extends IteratingSystem {
 
         // apply left impulse, but only if max velocity is not reached yet
         if (controller.moveLeft && vel.x > -MAX_VELOCITY) {
-            body.applyLinearImpulse(-4f, 0, pos.x, pos.y, true);
+            //body.applyLinearImpulse(-10f, 0, pos.x, pos.y, true);
+            body.setLinearVelocity(-15f, vel.y);
         }
 
         // apply right impulse, but only if max velocity is not reached yet
         if (controller.moveRight && vel.x < MAX_VELOCITY) {
-            body.applyLinearImpulse(4f, 0, pos.x, pos.y, true);
+            //body.applyLinearImpulse(10f, 0, pos.x, pos.y, true);
+            body.setLinearVelocity(15f, vel.y);
         }
 
         // jump, but only when grounded
