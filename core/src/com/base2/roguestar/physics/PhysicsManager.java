@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.base2.roguestar.entities.EntityManager;
 import com.base2.roguestar.entities.components.CharacterComponent;
 import com.base2.roguestar.events.Event;
@@ -88,7 +89,8 @@ public class PhysicsManager implements EventSubscriber {
             UUID uid = entities.getUUID(entity);
             Body body = physicsMapper.get(entity).body;
 
-            if (body.isAwake()) {
+            // create an unverified snapshot delta for this frame
+            if (body.isAwake() || true) {
                 // generate unverified snapshots based on this physics update
                 PhysicsBodySnapshot unverifiedSnapshot = new PhysicsBodySnapshot(body, uid).getDelta(previousFrame.get(uid));
 
@@ -118,7 +120,10 @@ public class PhysicsManager implements EventSubscriber {
                         }
                         else {
                             verifiedSnapshot.applyDelta(unverifiedSnapshot);
-                            System.out.println("x: " + unverifiedSnapshot.getX() + ", y: " + unverifiedSnapshot.getY());
+//                            System.out.println("unverified time: " + unverifiedSnapshot.getTimestamp());
+//                            System.out.println("verified time  : " + verifiedSnapshot.getTimestamp());
+//                            System.out.println("now time       : " + TimeUtils.nanoTime());
+//                            System.out.println("x: " + unverifiedSnapshot.getX() + ", y: " + unverifiedSnapshot.getY());
                             index += 1;
                         }
                     }

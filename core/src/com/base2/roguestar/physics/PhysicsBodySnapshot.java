@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public class PhysicsBodySnapshot {
 
-    private float timestamp;
+    private long timestamp;
     private String uid;
     private float x;
     private float y;
@@ -58,11 +58,11 @@ public class PhysicsBodySnapshot {
         return UUID.fromString(uid);
     }
 
-    public float getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(float timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 
