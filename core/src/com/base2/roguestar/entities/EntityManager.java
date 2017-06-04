@@ -30,8 +30,8 @@ public class EntityManager implements EventSubscriber {
         EntityToUid = new HashMap<Entity, UUID>();
 
         engine = new PooledEngine();
-        engine.addSystem(new MovementSystem());
         engine.addSystem(new PlayerInputEventSystem());
+        engine.addSystem(new MovementSystem());
 
         builder = new EntityBuilder();
         builder.init();
