@@ -54,7 +54,6 @@ public class CollisionLoader {
             Body body = physicsWorld.createBody(bd);
             Fixture fixture = body.createFixture(shape, 1);
             fixture.setUserData(shape2D);
-            //bodies.add(body);
 
             shape.dispose();
         }
