@@ -45,7 +45,7 @@ public class MovementSystem extends IteratingSystem {
         RunSpeedComponent r = rm.get(entity);
 
         CharacterController controller = c.controller;
-        Body body = p.body;
+        Body body = p.collisionBody;
         Fixture physicsFixture = p.physicsFixture;
         Fixture sensorFixture = p.sensorFixture;
         int runSpeed = r.runSpeed;
@@ -70,54 +70,54 @@ public class MovementSystem extends IteratingSystem {
 //            }
 //        }
 
-        //body.setLinearVelocity(0, vel.y);
+        body.setLinearVelocity(0, vel.y);
 
         // cap max velocity on x
-        if (Math.abs(vel.x) > MAX_VELOCITY) {
-            vel.x = Math.signum(vel.x) * MAX_VELOCITY;
-            body.setLinearVelocity(vel.x, vel.y);
-        }
+//        if (Math.abs(vel.x) > MAX_VELOCITY) {
+//            vel.x = Math.signum(vel.x) * MAX_VELOCITY;
+//            body.setLinearVelocity(vel.x, vel.y);
+//        }
 
         // calculate stilltime & damp
         if (!controller.moveLeft && !controller.moveRight) {
             stillTime += deltaTime;
-            body.setLinearVelocity(vel.x * 0.9f, vel.y);
+            //body.setLinearVelocity(vel.x * 0.9f, vel.y);
         }
         else {
             stillTime = 0;
         }
 
         // disable friction while jumping
-        if (!p.isGrounded) {
-            physicsFixture.setFriction(0f);
-            sensorFixture.setFriction(0f);
-        } else {
-            if (!controller.moveLeft && !controller.moveRight && stillTime > 0.2) {
-                physicsFixture.setFriction(100f);
-                sensorFixture.setFriction(100f);
-            }
-            else {
-                physicsFixture.setFriction(0.0f);
-                sensorFixture.setFriction(0.0f);
-            }
-
-//            if(groundedPlatform != null && groundedPlatform.dist == 0) {
-//                player.applyLinearImpulse(0, -24, pos.x, pos.y,true);
+//        if (!p.isGrounded) {
+//            physicsFixture.setFriction(0f);
+//            sensorFixture.setFriction(0f);
+//        } else {
+//            if (!controller.moveLeft && !controller.moveRight && stillTime > 0.2) {
+//                physicsFixture.setFriction(100f);
+//                sensorFixture.setFriction(100f);
 //            }
-        }
+//            else {
+//                physicsFixture.setFriction(0.0f);
+//                sensorFixture.setFriction(0.0f);
+//            }
+//
+////            if(groundedPlatform != null && groundedPlatform.dist == 0) {
+////                player.applyLinearImpulse(0, -24, pos.x, pos.y,true);
+////            }
+//        }
 
         // apply left impulse, but only if max velocity is not reached yet
         if (controller.moveLeft && vel.x > -MAX_VELOCITY) {
-            body.applyLinearImpulse(-10f, 0, pos.x, pos.y, true);
+            //body.applyLinearImpulse(-10f, 0, pos.x, pos.y, true);
             //body.setLinearVelocity(-15f, vel.y);
-            //body.setTransform(pos.x - (10 * deltaTime), pos.y, angle);
+            body.setTransform(pos.x - (10 * deltaTime), pos.y, angle);
         }
 
         // apply right impulse, but only if max velocity is not reached yet
         if (controller.moveRight && vel.x < MAX_VELOCITY) {
-            body.applyLinearImpulse(10f, 0, pos.x, pos.y, true);
+            //body.applyLinearImpulse(10f, 0, pos.x, pos.y, true);
             //body.setLinearVelocity(15f, vel.y);
-            //body.setTransform(pos.x + (10 * deltaTime), pos.y, angle);
+            body.setTransform(pos.x + (10 * deltaTime), pos.y, angle);
         }
 
         // jump, but only when grounded

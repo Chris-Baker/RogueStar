@@ -12,6 +12,7 @@ import com.base2.roguestar.physics.PhysicsBodySnapshot;
 public class CharacterComponent implements Component {
 
     public Body body;
+    public Body collisionBody;
     public Fixture physicsFixture;
     public Fixture sensorFixture;
     public boolean isGrounded = false;

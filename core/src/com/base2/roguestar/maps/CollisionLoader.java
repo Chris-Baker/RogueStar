@@ -6,6 +6,7 @@ import com.badlogic.gdx.maps.objects.*;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Shape2D;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.base2.roguestar.utils.Config;
@@ -25,26 +26,42 @@ public class CollisionLoader {
             }
 
             Shape shape;
+            Shape2D shape2D;
 
             if (object instanceof RectangleMapObject) {
-                shape = getRectangle((RectangleMapObject) object);
+                RectangleMapObject rectangle = (RectangleMapObject) object;
+                shape = getRectangle(rectangle);
+                shape2D = rectangle.getRectangle().setSize(
+                        rectangle.getRectangle().getWidth() / Config.PIXELS_PER_METER,
+                        rectangle.getRectangle().getHeight() / Config.PIXELS_PER_METER);
+
             } else if (object instanceof PolygonMapObject) {
-                shape = getPolygon((PolygonMapObject) object);
+                PolygonMapObject polygon = (PolygonMapObject) object;
+                shape = getPolygon(polygon);
+                shape2D = polygon.getPolygon().scale(1 / Config.PIXELS_PER_METER);
+
             } else if (object instanceof PolylineMapObject) {
-                shape = getPolyline((PolylineMapObject) object);
+                PolylineMapObject polyline = (PolylineMapObject) object;
+                shape = getPolyline(polyline);
+                shape2D = polyline.getPolyline();
+
             } else if (object instanceof CircleMapObject) {
-                shape = getCircle((CircleMapObject) object);
+                CircleMapObject circle = (CircleMapObject) object;
+                shape = getCircle(circle);
+                shape2D = circle.getCircle();
+
             } else {
                 continue;
             }
 
+
+
             BodyDef bd = new BodyDef();
             bd.type = BodyDef.BodyType.StaticBody;
             Body body = physicsWorld.createBody(bd);
-            body.createFixture(shape, 1);
-
+            Fixture fixture = body.createFixture(shape, 1);
+            fixture.setUserData(shape2D);
             //bodies.add(body);
-
 
             shape.dispose();
         }
