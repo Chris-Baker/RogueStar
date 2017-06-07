@@ -20,8 +20,14 @@ public class CollisionHandler implements ContactListener {
         Body bodyA = fixtureA.getBody();
         Body bodyB = fixtureB.getBody();
 
+
+
         this.dispatch(bodyA, bodyB, contact);
         this.dispatch(bodyB, bodyA, contact);
+
+        contact.getWorldManifold();
+
+        System.out.println("contact");
     }
 
     private void dispatch(Body body, Body other, Contact contact) {

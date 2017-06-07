@@ -121,7 +121,7 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 			server.start();
 			server.bind(54555, 54777);
 
-			server.addListener(new Listener.LagListener(200, 200, new Listener() {
+			server.addListener(new Listener.LagListener(22, 22, new Listener() {
 				public void received (Connection connection, Object object) {
 
 					if (object instanceof Ping) {

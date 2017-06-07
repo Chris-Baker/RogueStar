@@ -5,6 +5,8 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.physics.box2d.QueryCallback;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -80,6 +82,8 @@ public class PhysicsManager implements EventSubscriber {
             accum -= Config.PHYSICS_TIME_STEP;
             iterations++;
         }
+
+
     }
 
     public void postUpdate() {
@@ -87,7 +91,8 @@ public class PhysicsManager implements EventSubscriber {
         for (Entity entity: entities.getEntitiesFor(Family.all(CharacterComponent.class).get())) {
 
             UUID uid = entities.getUUID(entity);
-            Body body = physicsMapper.get(entity).body;
+            CharacterComponent cc = physicsMapper.get(entity);
+            Body body = cc.body;
 
             // create an unverified snapshot delta for this frame
             if (body.isAwake() || true) {
@@ -130,11 +135,23 @@ public class PhysicsManager implements EventSubscriber {
                 }
 
                 // update our body with the state form the server
-                body.setTransform(verifiedSnapshot.getX(), verifiedSnapshot.getY(), verifiedSnapshot.getAngle());
+                body.setTransform(body.getPosition().lerp(new Vector2(verifiedSnapshot.getX(), verifiedSnapshot.getY()), 0.5f), verifiedSnapshot.getAngle());
                 body.setLinearVelocity(verifiedSnapshot.getVX(), verifiedSnapshot.getVY());
                 body.setAngularVelocity(verifiedSnapshot.getAngularVelocity());
             }
         }
+    }
+
+    public Array<Fixture> getObjectsInRange(float x, float y, float x2, float y2) {
+        final Array<Fixture> fixtures = new Array<Fixture>();
+        world.QueryAABB(new QueryCallback() {
+            @Override
+            public boolean reportFixture(Fixture fixture) {
+                fixtures.add(fixture);
+                return true;
+            }
+        }, Math.min(x, x2), Math.min(y, y2), Math.max(x, x2), Math.max(y, y2));
+        return fixtures;
     }
 
     public void removeBody(Body b) {
