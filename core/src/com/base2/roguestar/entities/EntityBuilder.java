@@ -3,6 +3,9 @@ package com.base2.roguestar.entities;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
@@ -73,52 +76,36 @@ public class EntityBuilder {
         CharacterComponent pc = entities.createComponent(CharacterComponent.class);
 
         // create our kinematic body for handling position updates and character controls
-        BodyDef posDef = new BodyDef();
-        posDef.type = BodyDef.BodyType.KinematicBody;
-        posDef.fixedRotation = true;
-        Body posBody = physics.getWorld().createBody(posDef);
-
-        PolygonShape posPoly = new PolygonShape();
-        posPoly.setAsBox(0.5f, 1f);
-        Fixture playerPositionFixture = posBody.createFixture(posPoly, 1);
-        posPoly.dispose();
-
-        posBody.setTransform(x, y, angle);
-        posBody.setUserData(e);
-
-        // create our dynamic sensor body for handling collisions
         BodyDef def = new BodyDef();
-        def.type = BodyDef.BodyType.DynamicBody;
+        def.type = BodyDef.BodyType.KinematicBody;
         def.fixedRotation = true;
         Body body = physics.getWorld().createBody(def);
 
+        Rectangle rectangle2D = new Rectangle();
+        rectangle2D.setSize(1, 2);
         PolygonShape poly = new PolygonShape();
         poly.setAsBox(0.5f, 1f);
         Fixture playerPhysicsFixture = body.createFixture(poly, 1);
         playerPhysicsFixture.setSensor(true);
+        playerPhysicsFixture.setUserData(rectangle2D);
         poly.dispose();
 
+        Circle circle2D = new Circle();
+        circle2D.setRadius(1);
         CircleShape circle = new CircleShape();
         circle.setRadius(0.5f);
         circle.setPosition(new Vector2(0, -1f));
         Fixture playerSensorFixture = body.createFixture(circle, 0);
         playerSensorFixture.setSensor(true);
+        playerSensorFixture.setUserData(circle2D);
         circle.dispose();
 
         body.setBullet(true);
         body.setTransform(x, y, angle);
         body.setUserData(e);
 
-        // create our weld joint to link the kinematic and dynamic bodies
-//        WeldJointDef weldJointDef = new WeldJointDef();
-//        weldJointDef.bodyA = posBody;
-//        weldJointDef.bodyB = body;
-//        weldJointDef.localAnchorA.set(0, 0);
-//        physics.getWorld().createJoint(weldJointDef);
-
         // add out physics objects to the character controller component
-        pc.collisionBody = posBody;
-        pc.body = posBody;
+        pc.body = body;
         pc.physicsFixture = playerPhysicsFixture;
         pc.sensorFixture = playerSensorFixture;
         e.add(pc);
