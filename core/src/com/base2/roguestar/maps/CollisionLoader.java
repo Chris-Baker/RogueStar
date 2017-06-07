@@ -4,10 +4,7 @@ import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.objects.*;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.math.Circle;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Shape2D;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.physics.box2d.*;
 import com.base2.roguestar.utils.Config;
 
@@ -30,31 +27,27 @@ public class CollisionLoader {
 
             if (object instanceof RectangleMapObject) {
                 RectangleMapObject rectangle = (RectangleMapObject) object;
-                shape = getRectangle(rectangle);
-                shape2D = rectangle.getRectangle().setSize(
-                        rectangle.getRectangle().getWidth() / Config.PIXELS_PER_METER,
-                        rectangle.getRectangle().getHeight() / Config.PIXELS_PER_METER);
+                shape = getBox2dRectangle(rectangle);
+                shape2D = getRectangle(rectangle);
 
             } else if (object instanceof PolygonMapObject) {
                 PolygonMapObject polygon = (PolygonMapObject) object;
-                shape = getPolygon(polygon);
-                shape2D = polygon.getPolygon().scale(1 / Config.PIXELS_PER_METER);
+                shape = getBox2dPolygon(polygon);
+                shape2D = getPolygon(polygon);
 
             } else if (object instanceof PolylineMapObject) {
                 PolylineMapObject polyline = (PolylineMapObject) object;
-                shape = getPolyline(polyline);
-                shape2D = polyline.getPolyline();
+                shape = getBox2dPolyline(polyline);
+                shape2D = getPolyline(polyline);
 
             } else if (object instanceof CircleMapObject) {
                 CircleMapObject circle = (CircleMapObject) object;
-                shape = getCircle(circle);
-                shape2D = circle.getCircle();
+                shape = getBox2dCircle(circle);
+                shape2D = getCircle(circle);
 
             } else {
                 continue;
             }
-
-
 
             BodyDef bd = new BodyDef();
             bd.type = BodyDef.BodyType.StaticBody;
@@ -67,7 +60,27 @@ public class CollisionLoader {
         }
     }
 
-    private static PolygonShape getRectangle(RectangleMapObject rectangleObject) {
+    private static Rectangle getRectangle(RectangleMapObject rectangleObject) {
+        Rectangle rectangle = new Rectangle(rectangleObject.getRectangle());
+        return rectangle;
+    }
+
+    private static Circle getCircle(CircleMapObject circleObject) {
+        Circle circle = new Circle(circleObject.getCircle());
+        return circle;
+    }
+
+    private static Polygon getPolygon(PolygonMapObject polygonObject) {
+        Polygon polygon = new Polygon(polygonObject.getPolygon().getTransformedVertices());
+        return polygon;
+    }
+
+    private static Polyline getPolyline(PolylineMapObject polylineObject) {
+        Polyline polyline = new Polyline(polylineObject.getPolyline().getTransformedVertices());
+        return polyline;
+    }
+
+    private static PolygonShape getBox2dRectangle(RectangleMapObject rectangleObject) {
         Rectangle rectangle = rectangleObject.getRectangle();
         PolygonShape polygon = new PolygonShape();
         Vector2 size = new Vector2((rectangle.x + rectangle.width * 0.5f) / Config.PIXELS_PER_METER,
@@ -79,7 +92,7 @@ public class CollisionLoader {
         return polygon;
     }
 
-    private static CircleShape getCircle(CircleMapObject circleObject) {
+    private static CircleShape getBox2dCircle(CircleMapObject circleObject) {
         Circle circle = circleObject.getCircle();
         CircleShape circleShape = new CircleShape();
         circleShape.setRadius(circle.radius / Config.PIXELS_PER_METER);
@@ -87,7 +100,7 @@ public class CollisionLoader {
         return circleShape;
     }
 
-    private static PolygonShape getPolygon(PolygonMapObject polygonObject) {
+    private static PolygonShape getBox2dPolygon(PolygonMapObject polygonObject) {
         PolygonShape polygon = new PolygonShape();
         float[] vertices = polygonObject.getPolygon().getTransformedVertices();
 
@@ -102,7 +115,7 @@ public class CollisionLoader {
         return polygon;
     }
 
-    private static ChainShape getPolyline(PolylineMapObject polylineObject) {
+    private static ChainShape getBox2dPolyline(PolylineMapObject polylineObject) {
         float[] vertices = polylineObject.getPolyline().getTransformedVertices();
         Vector2[] worldVertices = new Vector2[vertices.length / 2];
 
