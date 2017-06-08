@@ -66,6 +66,10 @@ public class CollisionLoader {
 
     private static Rectangle getRectangle(RectangleMapObject rectangleObject) {
         Rectangle rectangle = new Rectangle(rectangleObject.getRectangle());
+        rectangle.setSize(
+                rectangle.width / Config.PIXELS_PER_METER,
+                rectangle.height / Config.PIXELS_PER_METER);
+        rectangle.setPosition(rectangle.x / Config.PIXELS_PER_METER, rectangle.y / Config.PIXELS_PER_METER);
         return rectangle;
     }
 

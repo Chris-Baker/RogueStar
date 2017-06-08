@@ -9,7 +9,7 @@ public class PhysFixture {
     private Vector2 position;
 
     protected PhysFixture() {
-
+        this.position = new Vector2();
     }
 
     public Shape2D getShape() {
@@ -24,7 +24,11 @@ public class PhysFixture {
         return position;
     }
 
+    public void setPosition(float x, float y) {
+        this.position.set(x, y);
+    }
+
     public void setPosition(Vector2 position) {
-        this.position = position;
+        this.position.set(position);
     }
 }
