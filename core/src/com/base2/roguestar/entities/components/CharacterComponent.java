@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.utils.Array;
+import com.base2.roguestar.phys2d.PhysBody;
 import com.base2.roguestar.physics.PhysicsBodySnapshot;
 
 /**
@@ -14,5 +15,6 @@ public class CharacterComponent implements Component {
     public Body body;
     public Fixture physicsFixture;
     public Fixture sensorFixture;
+    public PhysBody physBody;
     public boolean isGrounded = false;
 }

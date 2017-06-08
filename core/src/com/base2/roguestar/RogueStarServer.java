@@ -220,7 +220,7 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 				// map is loaded
 
 				// load static collision bodies
-				CollisionLoader.load(maps.getMap(), physics.getWorld());
+				CollisionLoader.load(maps.getMap(), physics.getWorld(), physics.getPhysWorld());
 
 				// this loader should send each entity to the client for it to load
 				maps.loadEntities();

@@ -16,6 +16,8 @@ import com.base2.roguestar.entities.components.*;
 import com.base2.roguestar.events.EventManager;
 import com.base2.roguestar.events.messages.EntityCreatedEvent;
 import com.base2.roguestar.game.GameManager;
+import com.base2.roguestar.phys2d.PhysBody;
+import com.base2.roguestar.phys2d.PhysFixture;
 import com.base2.roguestar.physics.PhysicsManager;
 import com.base2.roguestar.utils.Locator;
 
@@ -81,28 +83,33 @@ public class EntityBuilder {
         def.fixedRotation = true;
         Body body = physics.getWorld().createBody(def);
 
-        Rectangle rectangle2D = new Rectangle();
-        rectangle2D.setSize(1, 2);
         PolygonShape poly = new PolygonShape();
         poly.setAsBox(0.5f, 1f);
         Fixture playerPhysicsFixture = body.createFixture(poly, 1);
         playerPhysicsFixture.setSensor(true);
-        playerPhysicsFixture.setUserData(rectangle2D);
         poly.dispose();
 
-        Circle circle2D = new Circle();
-        circle2D.setRadius(1);
         CircleShape circle = new CircleShape();
         circle.setRadius(0.5f);
         circle.setPosition(new Vector2(0, -1f));
         Fixture playerSensorFixture = body.createFixture(circle, 0);
         playerSensorFixture.setSensor(true);
-        playerSensorFixture.setUserData(circle2D);
         circle.dispose();
 
         body.setBullet(true);
         body.setTransform(x, y, angle);
         body.setUserData(e);
+
+        // create our Phys2D body
+        PhysBody physBody = physics.getPhysWorld().createBody();
+
+        Rectangle rectangle2D = new Rectangle();
+        rectangle2D.setSize(1, 2);
+        PhysFixture physRectangleFixture = physBody.createFixture(rectangle2D);
+
+        Circle circle2D = new Circle();
+        circle2D.setRadius(1);
+        PhysFixture physCircleFixture = physBody.createFixture(circle2D);
 
         // add out physics objects to the character controller component
         pc.body = body;
