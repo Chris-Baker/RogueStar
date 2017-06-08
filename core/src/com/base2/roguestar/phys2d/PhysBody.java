@@ -10,6 +10,10 @@ public class PhysBody {
     private PhysBodyType type = PhysBodyType.STATIC;
     private Vector2 position = new Vector2();
 
+    protected PhysBody() {
+
+    }
+
     public Array<PhysFixture> getFixtures() {
         return fixtures;
     }

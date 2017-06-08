@@ -18,13 +18,10 @@ import com.base2.roguestar.utils.Config;
 public class PhysicsRenderer {
 
     private Box2DDebugRenderer debugRenderer;
-    private ShapeRenderer shapeRenderer;
     private final Matrix4 combined = new Matrix4();
-    private final Array<Body> bodies = new Array<Body>();
 
     public void init() {
         debugRenderer = new Box2DDebugRenderer();
-        shapeRenderer = new ShapeRenderer();
     }
 
     public void render(World world, OrthographicCamera camera) {
@@ -33,41 +30,6 @@ public class PhysicsRenderer {
         // match and render the debug draw correctly over the tiled maps.
         combined.set(camera.combined).scl(Config.PIXELS_PER_METER);
         debugRenderer.render(world, combined);
-
-
-        shapeRenderer.setProjectionMatrix(camera.combined);
-        world.getBodies(bodies);
-
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(0, 1, 0, 1);
-        for (Body body: bodies) {
-            Object object = body.getUserData();
-            if (object != null && object instanceof PhysBody) {
-                PhysBody physBody = (PhysBody)object;
-
-                for (PhysFixture physFixture: physBody.getFixtures()) {
-                    Shape2D shape = physFixture.getShape();
-
-                    if (shape instanceof Rectangle) {
-                        Rectangle rectangle = (Rectangle)shape;
-                        shapeRenderer.rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
-                    }
-                    else if (shape instanceof Circle) {
-                        Circle circle = (Circle)shape;
-                        shapeRenderer.circle(circle.x, circle.y, circle.radius);
-                    }
-                    else if (shape instanceof Polygon) {
-                        Polygon polygon = (Polygon)shape;
-                        shapeRenderer.polygon(polygon.getTransformedVertices());
-                    }
-                    else if (shape instanceof Polyline) {
-                        Polyline polyline = (Polyline)shape;
-                        shapeRenderer.polygon(polyline.getTransformedVertices());
-                    }
-                }
-            }
-        }
-        shapeRenderer.end();
     }
 
     public void dispose() {

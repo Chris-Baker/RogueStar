@@ -7,15 +7,16 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.physics.box2d.*;
 import com.base2.roguestar.phys2d.PhysBody;
+import com.base2.roguestar.phys2d.PhysWorld;
 import com.base2.roguestar.utils.Config;
 
 public class CollisionLoader {
 
-    public static void load(TiledMap map, World physicsWorld) {
-        parseObjectLayer(map.getLayers().get("collisions_1").getObjects(), physicsWorld);
+    public static void load(TiledMap map, World physicsWorld, PhysWorld physWorld) {
+        parseObjectLayer(map.getLayers().get("collisions_1").getObjects(), physicsWorld, physWorld);
     }
 
-    private static void parseObjectLayer(MapObjects objects, World physicsWorld) {
+    private static void parseObjectLayer(MapObjects objects, World physicsWorld, PhysWorld physWorld) {
 
         for (MapObject object : objects) {
 
@@ -50,7 +51,7 @@ public class CollisionLoader {
                 continue;
             }
 
-            PhysBody physBody = new PhysBody();
+            PhysBody physBody = physWorld.createBody();
             physBody.createFixture(shape2D);
 
             BodyDef bd = new BodyDef();

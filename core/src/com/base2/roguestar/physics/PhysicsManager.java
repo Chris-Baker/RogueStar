@@ -16,6 +16,7 @@ import com.base2.roguestar.events.Event;
 import com.base2.roguestar.events.EventSubscriber;
 import com.base2.roguestar.events.messages.UnverifiedPhysicsBodySnapshotEvent;
 import com.base2.roguestar.events.messages.VerifiedPhysicsBodySnapshotEvent;
+import com.base2.roguestar.phys2d.PhysWorld;
 import com.base2.roguestar.utils.Config;
 import com.base2.roguestar.utils.Locator;
 
@@ -34,6 +35,7 @@ public class PhysicsManager implements EventSubscriber {
     private final int VELOCITY_ITERATIONS = 8;
     private final int POSITION_ITERATIONS = 3;
 
+    private PhysWorld physWorld;
     private World world;
     private final Array<Body> deathRow = new Array<Body>();
 
@@ -50,6 +52,7 @@ public class PhysicsManager implements EventSubscriber {
         deathRow.clear();
         physicsMapper = ComponentMapper.getFor(CharacterComponent.class);
         entities = Locator.getEntityManager();
+        physWorld = new PhysWorld();
     }
 
     public void preUpdate() {
@@ -160,6 +163,10 @@ public class PhysicsManager implements EventSubscriber {
 
     public World getWorld() {
         return this.world;
+    }
+
+    public PhysWorld getPhysWorld() {
+        return physWorld;
     }
 
     public void dispose() {
