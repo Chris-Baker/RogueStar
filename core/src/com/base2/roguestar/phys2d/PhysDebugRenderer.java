@@ -3,6 +3,7 @@ package com.base2.roguestar.phys2d;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.*;
+import com.base2.roguestar.utils.Config;
 
 public class PhysDebugRenderer {
 
@@ -24,11 +25,18 @@ public class PhysDebugRenderer {
 
                 if (shape instanceof Rectangle) {
                     Rectangle rectangle = (Rectangle)shape;
-                    shapeRenderer.rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+                    shapeRenderer.rect(
+                            physFixture.getPosition().x * Config.PIXELS_PER_METER,
+                            physFixture.getPosition().y * Config.PIXELS_PER_METER,
+                            rectangle.width  * Config.PIXELS_PER_METER,
+                            rectangle.height * Config.PIXELS_PER_METER);
                 }
                 else if (shape instanceof Circle) {
                     Circle circle = (Circle)shape;
-                    shapeRenderer.circle(circle.x, circle.y, circle.radius);
+                    shapeRenderer.circle(
+                            physFixture.getPosition().x * Config.PIXELS_PER_METER,
+                            physFixture.getPosition().y * Config.PIXELS_PER_METER,
+                            circle.radius * Config.PIXELS_PER_METER);
                 }
                 else if (shape instanceof Polygon) {
                     Polygon polygon = (Polygon)shape;
