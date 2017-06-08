@@ -45,7 +45,7 @@ public class MovementSystem extends IteratingSystem {
         RunSpeedComponent r = rm.get(entity);
 
         CharacterController controller = c.controller;
-        Body body = p.collisionBody;
+        Body body = p.body;
         Fixture physicsFixture = p.physicsFixture;
         Fixture sensorFixture = p.sensorFixture;
         int runSpeed = r.runSpeed;
