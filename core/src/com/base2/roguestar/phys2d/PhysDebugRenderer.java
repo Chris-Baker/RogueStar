@@ -39,11 +39,16 @@ public class PhysDebugRenderer {
                             circle.radius * Config.PIXELS_PER_METER);
                 }
                 else if (shape instanceof Polygon) {
-                    Polygon polygon = (Polygon)shape;
+                    Polygon polygon = new Polygon(((Polygon)shape).getTransformedVertices());
+                    polygon.scale(Config.PIXELS_PER_METER);
+                    polygon.setPosition(physFixture.getX() * Config.PIXELS_PER_METER, physFixture.getY() * Config.PIXELS_PER_METER);
                     shapeRenderer.polygon(polygon.getTransformedVertices());
+
                 }
                 else if (shape instanceof Polyline) {
-                    Polyline polyline = (Polyline)shape;
+                    Polyline polyline = new Polyline(((Polyline)shape).getTransformedVertices());
+                    polyline.scale(Config.PIXELS_PER_METER);
+                    polyline.setPosition(physFixture.getX() * Config.PIXELS_PER_METER, physFixture.getY() * Config.PIXELS_PER_METER);
                     shapeRenderer.polygon(polyline.getTransformedVertices());
                 }
             }

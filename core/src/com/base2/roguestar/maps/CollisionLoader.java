@@ -75,16 +75,21 @@ public class CollisionLoader {
 
     private static Circle getCircle(CircleMapObject circleObject) {
         Circle circle = new Circle(circleObject.getCircle());
+        circle.set(circle.x / Config.PIXELS_PER_METER, circle.y / Config.PIXELS_PER_METER, circle.radius / Config.PIXELS_PER_METER);
         return circle;
     }
 
     private static Polygon getPolygon(PolygonMapObject polygonObject) {
         Polygon polygon = new Polygon(polygonObject.getPolygon().getTransformedVertices());
+        polygon.scale(1 / Config.PIXELS_PER_METER);
+        polygon.setPosition(polygon.getX() / Config.PIXELS_PER_METER, polygon.getY() / Config.PIXELS_PER_METER);
         return polygon;
     }
 
     private static Polyline getPolyline(PolylineMapObject polylineObject) {
         Polyline polyline = new Polyline(polylineObject.getPolyline().getTransformedVertices());
+        polyline.scale(1 / Config.PIXELS_PER_METER);
+        polyline.setPosition(polyline.getX() / Config.PIXELS_PER_METER, polyline.getY() / Config.PIXELS_PER_METER);
         return polyline;
     }
 
