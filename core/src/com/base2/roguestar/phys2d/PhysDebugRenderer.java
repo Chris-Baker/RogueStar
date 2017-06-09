@@ -10,10 +10,10 @@ public class PhysDebugRenderer {
     private ShapeRenderer shapeRenderer;
 
     public void init() {
-        shapeRenderer = new ShapeRenderer();
+        this.shapeRenderer = new ShapeRenderer();
     }
 
-    public void render(PhysWorld world, OrthographicCamera camera) {
+    public void render(PhysWorld world, OrthographicCamera camera, float scale) {
 
         shapeRenderer.setProjectionMatrix(camera.combined);
 
@@ -26,29 +26,29 @@ public class PhysDebugRenderer {
                 if (shape instanceof Rectangle) {
                     Rectangle rectangle = (Rectangle)shape;
                     shapeRenderer.rect(
-                            physFixture.getX() * Config.PIXELS_PER_METER,
-                            physFixture.getY() * Config.PIXELS_PER_METER,
-                            rectangle.width  * Config.PIXELS_PER_METER,
-                            rectangle.height * Config.PIXELS_PER_METER);
+                            physFixture.getX() * scale,
+                            physFixture.getY() * scale,
+                            rectangle.width  * scale,
+                            rectangle.height * scale);
                 }
                 else if (shape instanceof Circle) {
                     Circle circle = (Circle)shape;
                     shapeRenderer.circle(
-                            physFixture.getX() * Config.PIXELS_PER_METER,
-                            physFixture.getY() * Config.PIXELS_PER_METER,
-                            circle.radius * Config.PIXELS_PER_METER);
+                            physFixture.getX() * scale,
+                            physFixture.getY() * scale,
+                            circle.radius * scale);
                 }
                 else if (shape instanceof Polygon) {
                     Polygon polygon = new Polygon(((Polygon)shape).getTransformedVertices());
-                    polygon.scale(Config.PIXELS_PER_METER);
-                    polygon.setPosition(physFixture.getX() * Config.PIXELS_PER_METER, physFixture.getY() * Config.PIXELS_PER_METER);
+                    polygon.setScale(scale, scale);
+                    polygon.setPosition(physFixture.getX() * scale, physFixture.getY() * scale);
                     shapeRenderer.polygon(polygon.getTransformedVertices());
 
                 }
                 else if (shape instanceof Polyline) {
                     Polyline polyline = new Polyline(((Polyline)shape).getTransformedVertices());
-                    polyline.scale(Config.PIXELS_PER_METER);
-                    polyline.setPosition(physFixture.getX() * Config.PIXELS_PER_METER, physFixture.getY() * Config.PIXELS_PER_METER);
+                    polyline.setScale(scale, scale);
+                    polyline.setPosition(physFixture.getX() * scale, physFixture.getY() * scale);
                     shapeRenderer.polygon(polyline.getTransformedVertices());
                 }
             }

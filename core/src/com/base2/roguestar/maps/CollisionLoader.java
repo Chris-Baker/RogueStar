@@ -42,12 +42,18 @@ public class CollisionLoader {
                 shape = getBox2dPolyline(polyline);
                 shape2D = getPolyline(polyline);
 
-            } else if (object instanceof CircleMapObject) {
-                CircleMapObject circle = (CircleMapObject) object;
-                shape = getBox2dCircle(circle);
-                shape2D = getCircle(circle);
+            } else if (object instanceof EllipseMapObject) {
+                EllipseMapObject ellipse = (EllipseMapObject) object;
 
+                if (ellipse.getEllipse().width == ellipse.getEllipse().height) {
+                    shape = getBox2dCircle(ellipse);
+                    shape2D = getCircle(ellipse);
+                }
+                else {
+                    continue;
+                }
             } else {
+                System.out.println("Shape loader not found: " + object.getClass());
                 continue;
             }
 
@@ -73,22 +79,23 @@ public class CollisionLoader {
         return rectangle;
     }
 
-    private static Circle getCircle(CircleMapObject circleObject) {
-        Circle circle = new Circle(circleObject.getCircle());
-        circle.set(circle.x / Config.PIXELS_PER_METER, circle.y / Config.PIXELS_PER_METER, circle.radius / Config.PIXELS_PER_METER);
+    private static Circle getCircle(EllipseMapObject ellipseObject) {
+        Ellipse ellipse = ellipseObject.getEllipse();
+        Circle circle = new Circle();
+        circle.set((ellipse.x + ellipse.width * 0.5f) / Config.PIXELS_PER_METER, (ellipse.y + ellipse.width * 0.5f) / Config.PIXELS_PER_METER, ellipse.width / 2 / Config.PIXELS_PER_METER);
         return circle;
     }
 
     private static Polygon getPolygon(PolygonMapObject polygonObject) {
         Polygon polygon = new Polygon(polygonObject.getPolygon().getTransformedVertices());
-        polygon.scale(1 / Config.PIXELS_PER_METER);
+        polygon.setScale(1 / Config.PIXELS_PER_METER, 1 / Config.PIXELS_PER_METER);
         polygon.setPosition(polygon.getX() / Config.PIXELS_PER_METER, polygon.getY() / Config.PIXELS_PER_METER);
         return polygon;
     }
 
     private static Polyline getPolyline(PolylineMapObject polylineObject) {
         Polyline polyline = new Polyline(polylineObject.getPolyline().getTransformedVertices());
-        polyline.scale(1 / Config.PIXELS_PER_METER);
+        polyline.setScale(1 / Config.PIXELS_PER_METER, 1 / Config.PIXELS_PER_METER);
         polyline.setPosition(polyline.getX() / Config.PIXELS_PER_METER, polyline.getY() / Config.PIXELS_PER_METER);
         return polyline;
     }
@@ -105,11 +112,11 @@ public class CollisionLoader {
         return polygon;
     }
 
-    private static CircleShape getBox2dCircle(CircleMapObject circleObject) {
-        Circle circle = circleObject.getCircle();
+    private static CircleShape getBox2dCircle(EllipseMapObject ellipseObject) {
+        Ellipse ellipse = ellipseObject.getEllipse();
         CircleShape circleShape = new CircleShape();
-        circleShape.setRadius(circle.radius / Config.PIXELS_PER_METER);
-        circleShape.setPosition(new Vector2(circle.x / Config.PIXELS_PER_METER, circle.y / Config.PIXELS_PER_METER));
+        circleShape.setRadius(ellipse.width / 2 / Config.PIXELS_PER_METER);
+        circleShape.setPosition(new Vector2((ellipse.x + ellipse.width * 0.5f) / Config.PIXELS_PER_METER, (ellipse.y + ellipse.width * 0.5f) / Config.PIXELS_PER_METER));
         return circleShape;
     }
 
@@ -120,7 +127,6 @@ public class CollisionLoader {
         float[] worldVertices = new float[vertices.length];
 
         for (int i = 0; i < vertices.length; ++i) {
-            System.out.println(vertices[i]);
             worldVertices[i] = vertices[i] / Config.PIXELS_PER_METER;
         }
 
