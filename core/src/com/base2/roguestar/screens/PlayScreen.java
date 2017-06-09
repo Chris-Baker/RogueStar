@@ -8,6 +8,7 @@ import com.base2.roguestar.maps.MapRenderer;
 import com.base2.roguestar.phys2d.PhysDebugRenderer;
 import com.base2.roguestar.physics.PhysicsManager;
 import com.base2.roguestar.physics.PhysicsRenderer;
+import com.base2.roguestar.utils.Config;
 import com.base2.roguestar.utils.Locator;
 
 /**
@@ -42,7 +43,7 @@ public class PlayScreen implements Screen {
     public void render(float delta) {
         //mapRenderer.render(game.camera);
         physicsRenderer.render(physics.getWorld(), this.camera);
-        physDebugRenderer.render(physics.getPhysWorld(), this.camera);
+        physDebugRenderer.render(physics.getPhysWorld(), this.camera, Config.PIXELS_PER_METER);
     }
 
     @Override
