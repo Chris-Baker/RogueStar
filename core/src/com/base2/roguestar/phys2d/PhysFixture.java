@@ -1,7 +1,6 @@
 package com.base2.roguestar.phys2d;
 
-import com.badlogic.gdx.math.Shape2D;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.*;
 
 public class PhysFixture {
 
@@ -20,6 +19,23 @@ public class PhysFixture {
 
     public void setShape(Shape2D shape) {
         this.shape = shape;
+
+        if (shape instanceof Rectangle) {
+            Rectangle rectangle = (Rectangle)shape;
+            this.position.x += rectangle.x;
+            this.position.y += rectangle.y;
+        }
+        else if (shape instanceof Circle) {
+            Circle circle = (Circle)shape;
+            this.position.x += circle.x;
+            this.position.y += circle.y;
+        }
+        else if (shape instanceof Polygon) {
+            Polygon polygon = (Polygon)shape;
+        }
+        else if (shape instanceof Polyline) {
+            Polyline polyline = (Polyline)shape;
+        }
     }
 
     public float getX() {
