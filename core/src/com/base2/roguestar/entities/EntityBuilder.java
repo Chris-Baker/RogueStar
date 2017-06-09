@@ -102,6 +102,7 @@ public class EntityBuilder {
 
         // create our Phys2D body
         PhysBody physBody = physics.getPhysWorld().createBody();
+        physBody.setPosition(x, y);
 
         Rectangle rectangle2D = new Rectangle();
         rectangle2D.setSize(1, 2);
@@ -117,6 +118,7 @@ public class EntityBuilder {
         pc.body = body;
         pc.physicsFixture = playerPhysicsFixture;
         pc.sensorFixture = playerSensorFixture;
+        pc.physBody = physBody;
         e.add(pc);
 
         // player keyboard controller
