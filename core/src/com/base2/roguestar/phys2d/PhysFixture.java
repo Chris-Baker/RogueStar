@@ -32,9 +32,13 @@ public class PhysFixture {
         }
         else if (shape instanceof Polygon) {
             Polygon polygon = (Polygon)shape;
+            this.position.x += polygon.getX();
+            this.position.y += polygon.getY();
         }
         else if (shape instanceof Polyline) {
             Polyline polyline = (Polyline)shape;
+            this.position.x += polyline.getX();
+            this.position.y += polyline.getY();
         }
     }
 
