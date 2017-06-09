@@ -26,16 +26,16 @@ public class PhysDebugRenderer {
                 if (shape instanceof Rectangle) {
                     Rectangle rectangle = (Rectangle)shape;
                     shapeRenderer.rect(
-                            physFixture.getPosition().x * Config.PIXELS_PER_METER,
-                            physFixture.getPosition().y * Config.PIXELS_PER_METER,
+                            physFixture.getX() * Config.PIXELS_PER_METER,
+                            physFixture.getY() * Config.PIXELS_PER_METER,
                             rectangle.width  * Config.PIXELS_PER_METER,
                             rectangle.height * Config.PIXELS_PER_METER);
                 }
                 else if (shape instanceof Circle) {
                     Circle circle = (Circle)shape;
                     shapeRenderer.circle(
-                            physFixture.getPosition().x * Config.PIXELS_PER_METER,
-                            physFixture.getPosition().y * Config.PIXELS_PER_METER,
+                            physFixture.getX() * Config.PIXELS_PER_METER,
+                            physFixture.getY() * Config.PIXELS_PER_METER,
                             circle.radius * Config.PIXELS_PER_METER);
                 }
                 else if (shape instanceof Polygon) {

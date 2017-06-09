@@ -20,7 +20,7 @@ public class PhysBody {
 
     public PhysFixture createFixture(Shape2D shape) {
 
-        PhysFixture fixture = new PhysFixture();
+        PhysFixture fixture = new PhysFixture(this);
         fixture.setShape(shape);
         this.fixtures.add(fixture);
         return fixture;
