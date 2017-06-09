@@ -5,10 +5,12 @@ import com.badlogic.gdx.math.Vector2;
 
 public class PhysFixture {
 
+    private PhysBody body;
     private Shape2D shape;
     private Vector2 position;
 
-    protected PhysFixture() {
+    protected PhysFixture(PhysBody body) {
+        this.body = body;
         this.position = new Vector2();
     }
 
@@ -20,8 +22,12 @@ public class PhysFixture {
         this.shape = shape;
     }
 
-    public Vector2 getPosition() {
-        return position;
+    public float getX() {
+        return body.getX() + position.x;
+    }
+
+    public float getY() {
+        return body.getY() + position.y;
     }
 
     public void setPosition(float x, float y) {
