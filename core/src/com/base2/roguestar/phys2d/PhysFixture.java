@@ -57,4 +57,5 @@ public class PhysFixture {
     public void setPosition(Vector2 position) {
         this.position.set(position);
     }
+
 }

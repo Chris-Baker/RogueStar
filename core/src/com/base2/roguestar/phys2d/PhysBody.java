@@ -9,10 +9,9 @@ public class PhysBody {
     private Array<PhysFixture> fixtures = new Array<PhysFixture>();
     private PhysBodyType type = PhysBodyType.STATIC;
     private Vector2 position = new Vector2();
+    private AABB aabb = new AABB();
 
-    protected PhysBody() {
-
-    }
+    protected PhysBody() {}
 
     public Array<PhysFixture> getFixtures() {
         return fixtures;
@@ -22,6 +21,7 @@ public class PhysBody {
 
         PhysFixture fixture = new PhysFixture(this);
         fixture.setShape(shape);
+        this.aabb.extend(fixture.getShape());
         this.fixtures.add(fixture);
         return fixture;
     }
@@ -48,5 +48,9 @@ public class PhysBody {
 
     public void setPosition(Vector2 position) {
         this.position.set(position);
+    }
+
+    public AABB getAABB() {
+        return aabb;
     }
 }
