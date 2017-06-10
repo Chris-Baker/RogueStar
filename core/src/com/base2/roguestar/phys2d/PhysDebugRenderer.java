@@ -3,7 +3,6 @@ package com.base2.roguestar.phys2d;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.*;
-import com.base2.roguestar.utils.Config;
 
 public class PhysDebugRenderer {
 
@@ -16,10 +15,11 @@ public class PhysDebugRenderer {
     public void render(PhysWorld world, OrthographicCamera camera, float scale) {
 
         shapeRenderer.setProjectionMatrix(camera.combined);
-
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(0, 1, 0, 1);
         for (PhysBody body: world.getBodies()) {
+
+            // draw all our fixtures
+            shapeRenderer.setColor(0, 1, 0, 1);
             for (PhysFixture physFixture: body.getFixtures()) {
                 Shape2D shape = physFixture.getShape();
 
@@ -43,7 +43,6 @@ public class PhysDebugRenderer {
                     polygon.setScale(scale, scale);
                     polygon.setPosition(physFixture.getX() * scale, physFixture.getY() * scale);
                     shapeRenderer.polygon(polygon.getTransformedVertices());
-
                 }
                 else if (shape instanceof Polyline) {
                     Polyline polyline = new Polyline(((Polyline)shape).getTransformedVertices());
@@ -52,6 +51,15 @@ public class PhysDebugRenderer {
                     shapeRenderer.polygon(polyline.getTransformedVertices());
                 }
             }
+
+            // draw our AABB
+            AABB aabb = body.getAABB();
+            shapeRenderer.setColor(1, 0.5f, 0.5f, 1);
+            shapeRenderer.rect(
+                    aabb.getMinX() * scale,
+                    aabb.getMinY() * scale,
+                    (aabb.getMaxX() - aabb.getMinX())  * scale,
+                    (aabb.getMaxY() - aabb.getMinY()) * scale);
         }
         shapeRenderer.end();
     }

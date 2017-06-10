@@ -107,12 +107,12 @@ public class EntityBuilder {
         Rectangle rectangle2D = new Rectangle();
         rectangle2D.setSize(1, 2);
         PhysFixture physRectangleFixture = physBody.createFixture(rectangle2D);
-        physRectangleFixture.setPosition(-0.5f, -1f);
+        physRectangleFixture.setOffset(-0.5f, -1f);
 
         Circle circle2D = new Circle();
         circle2D.setRadius(0.5f);
         PhysFixture physCircleFixture = physBody.createFixture(circle2D);
-        physCircleFixture.setPosition(0f, -1f);
+        physCircleFixture.setOffset(0f, -1f);
 
         // add out physics objects to the character controller component
         pc.body = body;
