@@ -144,7 +144,7 @@ public class EntityBuilder {
 
         // player run speed
         RunSpeedComponent rc = entities.createComponent(RunSpeedComponent.class);
-        rc.runSpeed = 750;
+        rc.runSpeed = 15;
         e.add(rc);
 
 

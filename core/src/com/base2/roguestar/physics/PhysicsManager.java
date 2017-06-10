@@ -16,6 +16,7 @@ import com.base2.roguestar.events.Event;
 import com.base2.roguestar.events.EventSubscriber;
 import com.base2.roguestar.events.messages.UnverifiedPhysicsBodySnapshotEvent;
 import com.base2.roguestar.events.messages.VerifiedPhysicsBodySnapshotEvent;
+import com.base2.roguestar.phys2d.PhysBody;
 import com.base2.roguestar.phys2d.PhysWorld;
 import com.base2.roguestar.utils.Config;
 import com.base2.roguestar.utils.Locator;
@@ -96,6 +97,7 @@ public class PhysicsManager implements EventSubscriber {
             UUID uid = entities.getUUID(entity);
             CharacterComponent cc = physicsMapper.get(entity);
             Body body = cc.body;
+            PhysBody physBody = cc.physBody;
 
             // create an unverified snapshot delta for this frame
             if (body.isAwake() || true) {
@@ -141,6 +143,9 @@ public class PhysicsManager implements EventSubscriber {
                 body.setTransform(body.getPosition().lerp(new Vector2(verifiedSnapshot.getX(), verifiedSnapshot.getY()), 0.5f), verifiedSnapshot.getAngle());
                 body.setLinearVelocity(verifiedSnapshot.getVX(), verifiedSnapshot.getVY());
                 body.setAngularVelocity(verifiedSnapshot.getAngularVelocity());
+
+                // update our phys body to match our box2d body
+                physBody.setPosition(body.getPosition().x, body.getPosition().y);
             }
         }
     }
