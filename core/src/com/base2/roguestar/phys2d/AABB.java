@@ -9,6 +9,7 @@ public class AABB {
 
     private Vector2 min = new Vector2(Float.MAX_VALUE, Float.MAX_VALUE);
     private Vector2 max = new Vector2(Float.MIN_VALUE, Float.MIN_VALUE);
+    private Vector2 position = new Vector2();
 
     public void extend(Vector2 min, Vector2 max) {
         this.min.set((this.min.x < min.x) ? this.min.x : min.x, (this.min.y < min.y) ? this.min.y : min.y);
@@ -27,7 +28,7 @@ public class AABB {
             extend((Circle)shape);
         }
         else if (shape instanceof Polygon) {
-            extend(((Polygon)shape).getTransformedVertices());
+            extend(((Polygon)shape).getBoundingRectangle());
         }
         else if (shape instanceof Polyline) {
             extend(((Polyline)shape).getTransformedVertices());
@@ -47,7 +48,7 @@ public class AABB {
     }
 
     public void extend(Polygon polygon) {
-        extend(polygon.getTransformedVertices());
+        extend(polygon.getBoundingRectangle());
     }
 
     public void extend(Polyline polyline) {
@@ -58,7 +59,7 @@ public class AABB {
         tmpMin.set(Float.MAX_VALUE, Float.MAX_VALUE);
         tmpMax.set(Float.MIN_VALUE, Float.MIN_VALUE);
 
-        for (int i = 0, n = vertices.length / 2; i < n; i += 1) {
+        for (int i = 0, n = vertices.length; i < n; i += 2) {
             tmpMin.x = (vertices[i] < tmpMin.x) ? vertices[i] : tmpMin.x;
             tmpMin.y = (vertices[i + 1] < tmpMin.y) ? vertices[i + 1] : tmpMin.y;
             tmpMax.x = (vertices[i] > tmpMax.x) ? vertices[i] : tmpMax.x;
@@ -84,7 +85,7 @@ public class AABB {
             set((Circle)shape);
         }
         else if (shape instanceof Polygon) {
-            set(((Polygon)shape).getTransformedVertices());
+            set(((Polygon)shape).getBoundingRectangle());
         }
         else if (shape instanceof Polyline) {
             set(((Polyline)shape).getTransformedVertices());
@@ -104,7 +105,7 @@ public class AABB {
     }
 
     public void set(Polygon polygon) {
-        set(polygon.getTransformedVertices());
+        set(polygon.getBoundingRectangle());
     }
 
     public void set(Polyline polyline) {
@@ -115,7 +116,7 @@ public class AABB {
         tmpMin.set(Float.MAX_VALUE, Float.MAX_VALUE);
         tmpMax.set(Float.MIN_VALUE, Float.MIN_VALUE);
 
-        for (int i = 0, n = vertices.length / 2; i < n; i += 1) {
+        for (int i = 0, n = vertices.length; i < n; i += 2) {
             tmpMin.x = (vertices[i] < tmpMin.x) ? vertices[i] : tmpMin.x;
             tmpMin.y = (vertices[i + 1] < tmpMin.y) ? vertices[i + 1] : tmpMin.y;
             tmpMax.x = (vertices[i] > tmpMax.x) ? vertices[i] : tmpMax.x;
@@ -138,5 +139,13 @@ public class AABB {
 
     public float getMaxY() {
         return this.max.y;
+    }
+
+    public void setPosition(float x, float y) {
+        float deltaX = x - this.position.x;
+        float deltaY = y - this.position.y;
+        this.position.add(deltaX, deltaY);
+        this.min.add(deltaX, deltaY);
+        this.max.add(deltaX, deltaY);
     }
 }

@@ -44,13 +44,23 @@ public class PhysBody {
 
     public void setPosition(float x, float y) {
         this.position.set(x, y);
+        this.aabb.setPosition(x, y);
     }
 
     public void setPosition(Vector2 position) {
-        this.position.set(position);
+        this.setPosition(position.x, position.y);
     }
 
     public AABB getAABB() {
         return aabb;
+    }
+
+    public void calculateAABB() {
+        if (fixtures.size > 0) {
+            aabb.set(fixtures.first().getShape());
+            for (PhysFixture fixture: fixtures) {
+                aabb.extend(fixture.getShape());
+            }
+        }
     }
 }
