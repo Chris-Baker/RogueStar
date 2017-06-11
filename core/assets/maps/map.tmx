@@ -127,7 +127,7 @@
   </object>
  </objectgroup>
  <objectgroup name="entities">
-  <object id="14" name="Player 1 Start" gid="400" x="48" y="1488" width="16" height="16">
+  <object id="14" name="Player 1 Start" gid="400" x="47.75" y="1468.25" width="16" height="16">
    <properties>
     <property name="type" value="player"/>
    </properties>
