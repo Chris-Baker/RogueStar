@@ -39,6 +39,7 @@ public class PhysicsManager implements EventSubscriber {
     private PhysWorld physWorld;
     private World world;
     private final Array<Body> deathRow = new Array<Body>();
+    final Array<Fixture> fixtures = new Array<Fixture>();
 
     private final Map<UUID, PhysicsBodySnapshot> previousFrame = new HashMap<UUID, PhysicsBodySnapshot>();
     private final Map<UUID, PhysicsBodySnapshot> verifiedSnapshots = new HashMap<UUID, PhysicsBodySnapshot>();
@@ -86,8 +87,6 @@ public class PhysicsManager implements EventSubscriber {
             accum -= Config.PHYSICS_TIME_STEP;
             iterations++;
         }
-
-
     }
 
     public void postUpdate() {
@@ -126,14 +125,9 @@ public class PhysicsManager implements EventSubscriber {
 
                         if (unverifiedSnapshot.getTimestamp() <= verifiedSnapshot.getTimestamp()) {
                             unverifiedSnapshots.get(uid).removeIndex(index);
-                            //System.out.println("Dropped old unverified update");
                         }
                         else {
                             verifiedSnapshot.applyDelta(unverifiedSnapshot);
-//                            System.out.println("unverified time: " + unverifiedSnapshot.getTimestamp());
-//                            System.out.println("verified time  : " + verifiedSnapshot.getTimestamp());
-//                            System.out.println("now time       : " + TimeUtils.nanoTime());
-//                            System.out.println("x: " + unverifiedSnapshot.getX() + ", y: " + unverifiedSnapshot.getY());
                             index += 1;
                         }
                     }
@@ -150,15 +144,14 @@ public class PhysicsManager implements EventSubscriber {
         }
     }
 
-    public Array<Fixture> getObjectsInRange(float x, float y, float x2, float y2) {
-        final Array<Fixture> fixtures = new Array<Fixture>();
+    public Array<Fixture> getObjectsInRange(float minX, float minY, float maxX, float maxY) {
         world.QueryAABB(new QueryCallback() {
             @Override
             public boolean reportFixture(Fixture fixture) {
                 fixtures.add(fixture);
                 return true;
             }
-        }, Math.min(x, x2), Math.min(y, y2), Math.max(x, x2), Math.max(y, y2));
+        }, minX, minY, maxX, maxY);
         return fixtures;
     }
 
@@ -186,15 +179,5 @@ public class PhysicsManager implements EventSubscriber {
             PhysicsBodySnapshot snapshot = verifiedPhysicsBodySnapshotEvent.snapshot;
             verifiedSnapshots.put(snapshot.getUid(), snapshot);
         }
-//        else if (event instanceof UnverifiedPhysicsBodySnapshotEvent) {
-//            UnverifiedPhysicsBodySnapshotEvent unverifiedPhysicsBodySnapshotEvent = (UnverifiedPhysicsBodySnapshotEvent)event;
-//            PhysicsBodySnapshot snapshot = unverifiedPhysicsBodySnapshotEvent.snapshot;
-//            UUID uid = snapshot.getUid();
-//
-//            if (!unverifiedSnapshots.containsKey(uid)) {
-//                unverifiedSnapshots.put(uid, new Array<PhysicsBodySnapshot>());
-//            }
-//            unverifiedSnapshots.get(uid).add(snapshot);
-//        }
     }
 }
