@@ -7,6 +7,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.physics.box2d.*;
 import com.base2.roguestar.phys2d.PhysBody;
+import com.base2.roguestar.phys2d.PhysFixture;
 import com.base2.roguestar.phys2d.PhysWorld;
 import com.base2.roguestar.utils.Config;
 
@@ -58,12 +59,13 @@ public class CollisionLoader {
             }
 
             PhysBody physBody = physWorld.createBody();
-            physBody.createFixture(shape2D);
+            PhysFixture physFixture = physBody.createFixture(shape2D);
 
             BodyDef bd = new BodyDef();
             bd.type = BodyDef.BodyType.StaticBody;
             Body body = physicsWorld.createBody(bd);
             Fixture fixture = body.createFixture(shape, 1);
+            fixture.setUserData(physFixture);
             body.setUserData(physBody);
 
             shape.dispose();

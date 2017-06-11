@@ -16,7 +16,9 @@ import com.base2.roguestar.events.Event;
 import com.base2.roguestar.events.EventSubscriber;
 import com.base2.roguestar.events.messages.UnverifiedPhysicsBodySnapshotEvent;
 import com.base2.roguestar.events.messages.VerifiedPhysicsBodySnapshotEvent;
+import com.base2.roguestar.phys2d.AABB;
 import com.base2.roguestar.phys2d.PhysBody;
+import com.base2.roguestar.phys2d.PhysFixture;
 import com.base2.roguestar.phys2d.PhysWorld;
 import com.base2.roguestar.utils.Config;
 import com.base2.roguestar.utils.Locator;
@@ -141,10 +143,31 @@ public class PhysicsManager implements EventSubscriber {
                 // update our phys body to match our box2d body
                 physBody.setPosition(body.getPosition().x, body.getPosition().y);
             }
+
+            // get our bounding box from the phys2D body so that we can query the Box2D AABB
+            // and find any overlapping fixtures
+            AABB aabb = physBody.getAABB();
+            Array<Fixture> fixtures = getObjectsInRange(aabb.getMinX(), aabb.getMinY(), aabb.getMaxX(), aabb.getMaxY());
+
+            for (Fixture fixture: fixtures) {
+                if (!body.getFixtureList().contains(fixture, false)) {
+
+                    if (fixture.getUserData() instanceof PhysFixture) {
+                        // get phys fixture from the box2d fixture
+                        PhysFixture physFixture = (PhysFixture) fixture.getUserData();
+
+                        // check for any overlaps
+                        for (PhysFixture other: physBody.getFixtures()) {
+                            physWorld.overlaps(physFixture, other);
+                        }
+                    }
+                }
+            }
         }
     }
 
-    public Array<Fixture> getObjectsInRange(float minX, float minY, float maxX, float maxY) {
+    private Array<Fixture> getObjectsInRange(float minX, float minY, float maxX, float maxY) {
+        fixtures.clear();
         world.QueryAABB(new QueryCallback() {
             @Override
             public boolean reportFixture(Fixture fixture) {
