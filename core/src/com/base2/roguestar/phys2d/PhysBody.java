@@ -45,6 +45,9 @@ public class PhysBody {
     public void setPosition(float x, float y) {
         this.position.set(x, y);
         this.aabb.setPosition(x, y);
+        for (PhysFixture fixture: fixtures) {
+            fixture.setPosition(x, y);
+        }
     }
 
     public void setPosition(Vector2 position) {
