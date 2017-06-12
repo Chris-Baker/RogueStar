@@ -227,7 +227,7 @@ public class PhysFixture {
 
         for (int i = 0, n = vertices.length; i < n && !overlaps; i += 2) {
             overlaps = Intersector.intersectSegmentCircle(
-                    start.set(vertices[i - 2 % vertices.length], vertices[ i - 1 % vertices.length]),
+                    start.set(vertices[(i + (vertices.length - 2)) % vertices.length], vertices[(i + (vertices.length - 1)) % vertices.length]),
                     end.set(vertices[i], vertices[i + 1]),
                     center,
                     squareRadius);
