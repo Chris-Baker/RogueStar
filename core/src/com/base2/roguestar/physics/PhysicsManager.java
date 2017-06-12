@@ -116,8 +116,6 @@ public class PhysicsManager implements EventSubscriber {
 
                 PhysicsBodySnapshot verifiedSnapshot = verifiedSnapshots.remove(uid);
 
-                System.out.println("verified x: " + verifiedSnapshot.getX() + ", y: " + verifiedSnapshot.getY());
-
                 // if we have any client side state updates not verified by the server then we can apply
                 // those deltas to the verified state given to us by the server
                 if (unverifiedSnapshots.containsKey(uid)) {
@@ -202,5 +200,9 @@ public class PhysicsManager implements EventSubscriber {
             PhysicsBodySnapshot snapshot = verifiedPhysicsBodySnapshotEvent.snapshot;
             verifiedSnapshots.put(snapshot.getUid(), snapshot);
         }
+    }
+
+    public PhysicsBodySnapshot getPreviousSnapshot(UUID uid) {
+        return this.previousFrame.get(uid);
     }
 }

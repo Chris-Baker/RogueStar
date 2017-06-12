@@ -235,6 +235,7 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 			case PLAYING:
 
 				// update managers
+				this.physics.preUpdate();
 				this.entities.update(deltaTime);
 				this.physics.update(deltaTime);
 
@@ -256,11 +257,14 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 						CharacterComponent cc = physicsMapper.get(entity);
 						Body body = cc.body;
 						PhysicsBodySnapshot bodySnapshot = new PhysicsBodySnapshot(body, entities.getUUID(entity));
+						PhysicsBodySnapshot PhysicsBodySnapshot = this.physics.getPreviousSnapshot(entities.getUUID(entity));
 
-						PhysicsBodySnapshotMessage response = new PhysicsBodySnapshotMessage();
-						response.timestamp = TimeUtils.nanoTime();
-						response.snapshot = bodySnapshot;
-						server.sendToAllUDP(response);
+						if (bodySnapshot.isChanged(PhysicsBodySnapshot)) {
+							PhysicsBodySnapshotMessage response = new PhysicsBodySnapshotMessage();
+							response.timestamp = TimeUtils.nanoTime();
+							response.snapshot = bodySnapshot;
+							server.sendToAllUDP(response);
+						}
 					}
 				}
 
