@@ -9,14 +9,22 @@ public class PhysFixture {
     private Vector2 offset;
 
     // tmp objects for overlap checks
-    private float[] rectangleVertices = new float[8];
-    Vector2 start = new Vector2();
-    Vector2 end = new Vector2();
-    Vector2 center = new Vector2();
+    private float[] rectangleVerticesA = new float[8];
+    private float[] rectangleVerticesB = new float[8];
+    private Vector2 start = new Vector2();
+    private Vector2 end = new Vector2();
+    private Vector2 center = new Vector2();
+
+    // tmp objects for collision response
+    private Vector2 displacement = new Vector2();
 
     protected PhysFixture(PhysBody body) {
         this.body = body;
         this.offset = new Vector2();
+    }
+
+    public PhysBody getBody() {
+        return body;
     }
 
     public Shape2D getShape() {
@@ -109,150 +117,187 @@ public class PhysFixture {
         this.setPosition(position.x, position.y);
     }
 
-    public boolean overlaps(PhysFixture other) {
+    public boolean overlaps(PhysFixture other, Intersector.MinimumTranslationVector mtv) {
 
         boolean overlaps = false;
 
         if (shape instanceof Rectangle) {
             Rectangle rectangle = (Rectangle)shape;
-            overlaps = overlaps(rectangle, other.getShape());
+            overlaps = overlaps(rectangle, other.getShape(), mtv);
         }
         else if (shape instanceof Circle) {
             Circle circle = (Circle)shape;
-            overlaps = overlaps(circle, other.getShape());
+            overlaps = overlaps(circle, other.getShape(), mtv);
         }
         else if (shape instanceof Polygon) {
             Polygon polygon = (Polygon)shape;
-            overlaps = overlaps(polygon, other.getShape());
+            overlaps = overlaps(polygon, other.getShape(), mtv);
         }
         else if (shape instanceof Polyline) {
             Polyline polyline = (Polyline)shape;
-            overlaps = overlaps(polyline, other.getShape());
+            overlaps = overlaps(polyline, other.getShape(), mtv);
         }
 
         return overlaps;
     }
 
-    private boolean overlaps(Rectangle rectangle, Shape2D other) {
+    private boolean overlaps(Rectangle rectangle, Shape2D other, Intersector.MinimumTranslationVector mtv) {
 
         boolean overlaps = false;
 
         if (other instanceof Rectangle) {
-            overlaps = Intersector.overlaps((Rectangle)other, rectangle);
+            overlaps = overlaps((Rectangle)other, rectangle, mtv);
         }
         else if (other instanceof Circle) {
-            overlaps = Intersector.overlaps((Circle)other, rectangle);
+            overlaps = overlaps((Circle)other, rectangle, mtv);
         }
         else if (other instanceof Polygon) {
             Polygon polygon = (Polygon)other;
-            overlaps = overlaps(polygon.getTransformedVertices(), rectangle);
+            overlaps = overlaps(polygon.getTransformedVertices(), rectangle, mtv);
         }
         else if (other instanceof Polyline) {
             Polyline polyline = (Polyline)other;
-            overlaps = overlaps(polyline.getTransformedVertices(), rectangle);
+            overlaps = overlaps(polyline.getTransformedVertices(), rectangle, mtv);
         }
 
         return overlaps;
     }
 
-    private boolean overlaps(Circle circle, Shape2D other) {
+    private boolean overlaps(Circle circle, Shape2D other, Intersector.MinimumTranslationVector mtv) {
 
         boolean overlaps = false;
 
         if (other instanceof Rectangle) {
-            overlaps = Intersector.overlaps(circle, (Rectangle)other);
+            overlaps = overlaps(circle, (Rectangle)other, mtv);
         }
         else if (other instanceof Circle) {
-            overlaps = Intersector.overlaps((Circle)other, circle);
+            overlaps = overlaps((Circle)other, circle, mtv);
         }
         else if (other instanceof Polygon) {
             Polygon polygon = (Polygon)other;
-            overlaps = overlaps(polygon.getTransformedVertices(), circle);
+            overlaps = overlaps(polygon.getTransformedVertices(), circle, mtv);
         }
         else if (other instanceof Polyline) {
             Polyline polyline = (Polyline)other;
-            overlaps = overlaps(polyline.getTransformedVertices(), circle);
+            overlaps = overlaps(polyline.getTransformedVertices(), circle, mtv);
         }
 
         return overlaps;
     }
 
-    private boolean overlaps(Polygon polygon, Shape2D other) {
+    private boolean overlaps(Polygon polygon, Shape2D other, Intersector.MinimumTranslationVector mtv) {
 
         boolean overlaps = false;
 
         if (other instanceof Rectangle) {
-            overlaps = overlaps(polygon.getTransformedVertices(), (Rectangle)other);
+            overlaps = overlaps(polygon.getTransformedVertices(), (Rectangle)other, mtv);
         }
         else if (other instanceof Circle) {
-            overlaps = overlaps(polygon.getTransformedVertices(), (Circle)other);
+            overlaps = overlaps(polygon.getTransformedVertices(), (Circle)other, mtv);
         }
         else if (other instanceof Polygon) {
-            overlaps = Intersector.overlapConvexPolygons(polygon, (Polygon)other);
+            overlaps = Intersector.overlapConvexPolygons(polygon, (Polygon)other, mtv);
         }
         else if (other instanceof Polyline) {
             Polyline polyline = (Polyline)other;
-            overlaps = Intersector.overlapConvexPolygons(polygon.getTransformedVertices(), polyline.getTransformedVertices(), null);
+            overlaps = Intersector.overlapConvexPolygons(polygon.getTransformedVertices(), polyline.getTransformedVertices(), mtv);
         }
 
         return overlaps;
     }
 
-    private boolean overlaps(Polyline polyline, Shape2D other) {
+    private boolean overlaps(Polyline polyline, Shape2D other, Intersector.MinimumTranslationVector mtv) {
 
         boolean overlaps = false;
 
         if (other instanceof Rectangle) {
-            overlaps = overlaps(polyline.getTransformedVertices(), (Rectangle)other);
+            overlaps = overlaps(polyline.getTransformedVertices(), (Rectangle)other, mtv);
         }
         else if (other instanceof Circle) {
-            overlaps = overlaps(polyline.getTransformedVertices(), (Circle)other);
+            overlaps = overlaps(polyline.getTransformedVertices(), (Circle)other, mtv);
         }
         else if (other instanceof Polygon) {
             Polygon polygon = (Polygon)other;
-            overlaps = Intersector.overlapConvexPolygons(polyline.getTransformedVertices(), polygon.getTransformedVertices(), null);
+            overlaps = Intersector.overlapConvexPolygons(polyline.getTransformedVertices(), polygon.getTransformedVertices(), mtv);
         }
         else if (other instanceof Polyline) {
-            overlaps = Intersector.overlapConvexPolygons(((Polyline)other).getTransformedVertices(), polyline.getTransformedVertices(), null);
+            overlaps = Intersector.overlapConvexPolygons(((Polyline)other).getTransformedVertices(), polyline.getTransformedVertices(), mtv);
         }
 
         return overlaps;
     }
 
-    private boolean overlaps(float[] vertices, Circle circle) {
+    private boolean overlaps(Circle circleA, Circle circleB, Intersector.MinimumTranslationVector mtv) {
+
+        boolean overlaps = Intersector.overlaps(circleA, circleB);
+
+        if (overlaps) {
+            mtv.normal.set(circleA.x - circleB.x, circleA.y - circleB.y).nor();
+            mtv.depth = (circleA.radius + circleB.radius) - Vector2.dst(circleA.x, circleA.y, circleB.x, circleB.y);
+        }
+
+        return overlaps;
+    }
+
+    private boolean overlaps(float[] vertices, Circle circle, Intersector.MinimumTranslationVector mtv) {
 
         boolean overlaps = false;
-        float squareRadius = circle.radius * circle.radius;
+        float depth = 0;
         center.set(circle.x, circle.y);
 
         for (int i = 0, n = vertices.length; i < n && !overlaps; i += 2) {
-            overlaps = Intersector.intersectSegmentCircle(
+            depth = Intersector.intersectSegmentCircleDisplace(
                     start.set(vertices[(i + (vertices.length - 2)) % vertices.length], vertices[(i + (vertices.length - 1)) % vertices.length]),
                     end.set(vertices[i], vertices[i + 1]),
                     center,
-                    squareRadius);
+                    circle.radius,
+                    displacement);
+
+            // the above returns Float.POSITIVE_INFINITY if there is no overlap
+            // so we have an overlap if return is not that
+            overlaps = depth != Float.POSITIVE_INFINITY;
         }
+
+        // set out mtv object if we have an overlap
+        if (overlaps) {
+            mtv.normal.set(displacement);
+            mtv.depth = depth;
+        }
+
         return overlaps;
     }
 
-    private boolean overlaps(float[] vertices, Rectangle rectangle) {
+    private boolean overlaps(Circle circle, Rectangle rectangle, Intersector.MinimumTranslationVector mtv) {
 
-        boolean overlaps = false;
+        return overlaps(getVertices(rectangleVerticesA, rectangle), circle, mtv);
+    }
 
-        rectangleVertices[0] = rectangle.getX();
-        rectangleVertices[1] = rectangle.getY();
+    private boolean overlaps(Rectangle rectangleA, Rectangle rectangleB, Intersector.MinimumTranslationVector mtv) {
 
-        rectangleVertices[2] = rectangle.getX();
-        rectangleVertices[3] = rectangle.getY() + rectangle.getHeight();
+        return Intersector.overlapConvexPolygons(
+                getVertices(rectangleVerticesA, rectangleA),
+                getVertices(rectangleVerticesB, rectangleB),
+                mtv);
+    }
 
-        rectangleVertices[4] = rectangle.getX() + rectangle.getWidth();
-        rectangleVertices[5] = rectangle.getY() + rectangle.getHeight();
+    private boolean overlaps(float[] vertices, Rectangle rectangle, Intersector.MinimumTranslationVector mtv) {
 
-        rectangleVertices[6] = rectangle.getX() + rectangle.getWidth();
-        rectangleVertices[7] = rectangle.getY();
+        return Intersector.overlapConvexPolygons(vertices, getVertices(rectangleVerticesA, rectangle), mtv);
+    }
 
-        overlaps = Intersector.overlapConvexPolygons(vertices, rectangleVertices, null);
+    private float[] getVertices(float[] vertices, Rectangle rectangle) {
+        vertices[0] = rectangle.getX();
+        vertices[1] = rectangle.getY();
 
-        return overlaps;
+        vertices[2] = rectangle.getX();
+        vertices[3] = rectangle.getY() + rectangle.getHeight();
+
+        vertices[4] = rectangle.getX() + rectangle.getWidth();
+        vertices[5] = rectangle.getY() + rectangle.getHeight();
+
+        vertices[6] = rectangle.getX() + rectangle.getWidth();
+        vertices[7] = rectangle.getY();
+
+        return vertices;
     }
 }

@@ -17,6 +17,7 @@ import com.base2.roguestar.events.EventManager;
 import com.base2.roguestar.events.messages.EntityCreatedEvent;
 import com.base2.roguestar.game.GameManager;
 import com.base2.roguestar.phys2d.PhysBody;
+import com.base2.roguestar.phys2d.PhysBodyType;
 import com.base2.roguestar.phys2d.PhysFixture;
 import com.base2.roguestar.physics.PhysicsManager;
 import com.base2.roguestar.utils.Locator;
@@ -103,6 +104,8 @@ public class EntityBuilder {
         // create our Phys2D body
         PhysBody physBody = physics.getPhysWorld().createBody();
         physBody.setPosition(x, y);
+        physBody.setType(PhysBodyType.KINEMATIC);
+        physBody.setUserData(body);
 
         Rectangle rectangle2D = new Rectangle();
         rectangle2D.setSize(1, 2);

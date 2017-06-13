@@ -9,7 +9,9 @@ public class PhysBody {
     private Array<PhysFixture> fixtures = new Array<PhysFixture>();
     private PhysBodyType type = PhysBodyType.STATIC;
     private Vector2 position = new Vector2();
+    private Vector2 velocity = new Vector2();
     private AABB aabb = new AABB();
+    private Object userData;
 
     protected PhysBody() {}
 
@@ -65,5 +67,25 @@ public class PhysBody {
                 aabb.extend(fixture.getShape());
             }
         }
+    }
+
+    public Object getUserData() {
+        return userData;
+    }
+
+    public void setUserData(Object userData) {
+        this.userData = userData;
+    }
+
+    public Vector2 getVelocity() {
+        return velocity;
+    }
+
+    public void setVelocity(float x, float y) {
+        this.velocity.set(x, y);
+    }
+
+    public void setVelocity(Vector2 velocity) {
+        this.velocity.set(velocity);
     }
 }

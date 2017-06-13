@@ -46,14 +46,19 @@ public class MovementSystem extends IteratingSystem {
         float x = physBody.getX();
         float y = physBody.getY();
 
+        // reset horizontal velocity
+        physBody.setVelocity(0, physBody.getVelocity().y);
+
         // move left
         if (controller.moveLeft && !controller.moveRight) {
+            physBody.setVelocity((physBody.getVelocity().x -= runSpeed) * deltaTime, physBody.getVelocity().y);
             physBody.setPosition(x - (runSpeed * deltaTime), y);
             body.setTransform(physBody.getX(), physBody.getY(), angle);
         }
 
         // move right
         if (controller.moveRight && !controller.moveLeft) {
+            physBody.setVelocity((physBody.getVelocity().x += runSpeed) * deltaTime, physBody.getVelocity().y);
             physBody.setPosition(x + (runSpeed * deltaTime), y);
             body.setTransform(physBody.getX(), physBody.getY(), angle);
         }

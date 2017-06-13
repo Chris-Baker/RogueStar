@@ -89,6 +89,39 @@ public class PhysicsManager implements EventSubscriber {
             accum -= Config.PHYSICS_TIME_STEP;
             iterations++;
         }
+
+        // collisions for phys2D using box2D AABB
+        for (Entity entity: entities.getEntitiesFor(Family.all(CharacterComponent.class).get())) {
+
+            UUID uid = entities.getUUID(entity);
+            CharacterComponent cc = physicsMapper.get(entity);
+            Body body = cc.body;
+            PhysBody physBody = cc.physBody;
+
+            // get our bounding box from the phys2D body so that we can query the Box2D AABB
+            // and find any overlapping fixtures
+            AABB aabb = physBody.getAABB();
+            Array<Fixture> fixtures = getObjectsInRange(aabb.getMinX(), aabb.getMinY(), aabb.getMaxX(), aabb.getMaxY());
+
+            for (int i = 0, n = fixtures.size; i < n; i += 1) {
+
+                Fixture fixture = fixtures.get(i);
+
+                if (!body.getFixtureList().contains(fixture, false)) {
+
+                    if (fixture.getUserData() instanceof PhysFixture) {
+                        // get phys fixture from the box2d fixture
+                        PhysFixture physFixture = (PhysFixture) fixture.getUserData();
+
+                        // check for any overlaps
+                        for (int j = 0, m = physBody.getFixtures().size; j < m; j += 1) {
+                            PhysFixture other = physBody.getFixtures().get(j);
+                            physWorld.overlaps(physFixture, other);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public void postUpdate() {
@@ -140,26 +173,6 @@ public class PhysicsManager implements EventSubscriber {
 
                 // update our phys body to match our box2d body
                 physBody.setPosition(body.getPosition().x, body.getPosition().y);
-            }
-
-            // get our bounding box from the phys2D body so that we can query the Box2D AABB
-            // and find any overlapping fixtures
-            AABB aabb = physBody.getAABB();
-            Array<Fixture> fixtures = getObjectsInRange(aabb.getMinX(), aabb.getMinY(), aabb.getMaxX(), aabb.getMaxY());
-
-            for (Fixture fixture: fixtures) {
-                if (!body.getFixtureList().contains(fixture, false)) {
-
-                    if (fixture.getUserData() instanceof PhysFixture) {
-                        // get phys fixture from the box2d fixture
-                        PhysFixture physFixture = (PhysFixture) fixture.getUserData();
-
-                        // check for any overlaps
-                        for (PhysFixture other: physBody.getFixtures()) {
-                            physWorld.overlaps(physFixture, other);
-                        }
-                    }
-                }
             }
         }
     }
