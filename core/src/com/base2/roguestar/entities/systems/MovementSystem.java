@@ -48,7 +48,6 @@ public class MovementSystem extends IteratingSystem {
 
         // reset horizontal velocity
         physBody.setVelocity(0, physBody.getVelocity().y);
-
         // move left
         if (controller.moveLeft && !controller.moveRight) {
             physBody.setVelocity((physBody.getVelocity().x -= runSpeed) * deltaTime, physBody.getVelocity().y);
