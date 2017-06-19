@@ -9,6 +9,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.base2.roguestar.phys2d.PhysBody;
 import com.base2.roguestar.phys2d.PhysFixture;
 import com.base2.roguestar.phys2d.PhysWorld;
+import com.base2.roguestar.phys2d.ShapeFactory;
 import com.base2.roguestar.utils.Config;
 
 public class CollisionLoader {
@@ -26,7 +27,7 @@ public class CollisionLoader {
             }
 
             Shape shape;
-            Shape2D shape2D;
+            Polygon shape2D;
 
             if (object instanceof RectangleMapObject) {
                 RectangleMapObject rectangle = (RectangleMapObject) object;
@@ -37,11 +38,6 @@ public class CollisionLoader {
                 PolygonMapObject polygon = (PolygonMapObject) object;
                 shape = getBox2dPolygon(polygon);
                 shape2D = getPolygon(polygon);
-
-            } else if (object instanceof PolylineMapObject) {
-                PolylineMapObject polyline = (PolylineMapObject) object;
-                shape = getBox2dPolyline(polyline);
-                shape2D = getPolyline(polyline);
 
             } else if (object instanceof EllipseMapObject) {
                 EllipseMapObject ellipse = (EllipseMapObject) object;
@@ -72,20 +68,21 @@ public class CollisionLoader {
         }
     }
 
-    private static Rectangle getRectangle(RectangleMapObject rectangleObject) {
+    private static Polygon getRectangle(RectangleMapObject rectangleObject) {
         Rectangle rectangle = new Rectangle(rectangleObject.getRectangle());
-        rectangle.set(rectangle.x / Config.PIXELS_PER_METER,
-                rectangle.y / Config.PIXELS_PER_METER,
-                rectangle.width / Config.PIXELS_PER_METER,
-                rectangle.height / Config.PIXELS_PER_METER);
-        return rectangle;
+        Polygon polygon = ShapeFactory.getRectangle(rectangle.width / Config.PIXELS_PER_METER, rectangle.height / Config.PIXELS_PER_METER);
+        polygon.setPosition(rectangle.x / Config.PIXELS_PER_METER,rectangle.y / Config.PIXELS_PER_METER);
+        return polygon;
     }
 
-    private static Circle getCircle(EllipseMapObject ellipseObject) {
+    private static Polygon getCircle(EllipseMapObject ellipseObject) {
         Ellipse ellipse = ellipseObject.getEllipse();
-        Circle circle = new Circle();
-        circle.set((ellipse.x + ellipse.width * 0.5f) / Config.PIXELS_PER_METER, (ellipse.y + ellipse.width * 0.5f) / Config.PIXELS_PER_METER, ellipse.width / 2 / Config.PIXELS_PER_METER);
-        return circle;
+
+        Polygon polygon = ShapeFactory.getRegularPolygon(ellipse.width / 2 / Config.PIXELS_PER_METER, 6);
+        polygon.setPosition((ellipse.x + ellipse.width * 0.5f) / Config.PIXELS_PER_METER,
+                (ellipse.y + ellipse.width * 0.5f) / Config.PIXELS_PER_METER);
+
+        return polygon;
     }
 
     private static Polygon getPolygon(PolygonMapObject polygonObject) {
@@ -93,13 +90,6 @@ public class CollisionLoader {
         polygon.setScale(1 / Config.PIXELS_PER_METER, 1 / Config.PIXELS_PER_METER);
         polygon.setPosition(polygon.getX() / Config.PIXELS_PER_METER, polygon.getY() / Config.PIXELS_PER_METER);
         return polygon;
-    }
-
-    private static Polyline getPolyline(PolylineMapObject polylineObject) {
-        Polyline polyline = new Polyline(polylineObject.getPolyline().getTransformedVertices());
-        polyline.setScale(1 / Config.PIXELS_PER_METER, 1 / Config.PIXELS_PER_METER);
-        polyline.setPosition(polyline.getX() / Config.PIXELS_PER_METER, polyline.getY() / Config.PIXELS_PER_METER);
-        return polyline;
     }
 
     private static PolygonShape getBox2dRectangle(RectangleMapObject rectangleObject) {
@@ -134,21 +124,6 @@ public class CollisionLoader {
 
         polygon.set(worldVertices);
         return polygon;
-    }
-
-    private static ChainShape getBox2dPolyline(PolylineMapObject polylineObject) {
-        float[] vertices = polylineObject.getPolyline().getTransformedVertices();
-        Vector2[] worldVertices = new Vector2[vertices.length / 2];
-
-        for (int i = 0; i < vertices.length / 2; ++i) {
-            worldVertices[i] = new Vector2();
-            worldVertices[i].x = vertices[i * 2] / Config.PIXELS_PER_METER;
-            worldVertices[i].y = vertices[i * 2 + 1] / Config.PIXELS_PER_METER;
-        }
-
-        ChainShape chain = new ChainShape();
-        chain.createChain(worldVertices);
-        return chain;
     }
 
 }

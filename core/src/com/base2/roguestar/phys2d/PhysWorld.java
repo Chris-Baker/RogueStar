@@ -9,7 +9,6 @@ import com.badlogic.gdx.utils.IntMap;
 public class PhysWorld {
 
     // temp objects for collision repsonse
-    private Intersector.MinimumTranslationVector mtv = new Intersector.MinimumTranslationVector();
     private Vector2 newPosition = new Vector2();
 
     private IntMap<PhysContact> contacts = new IntMap<PhysContact>();
@@ -32,11 +31,10 @@ public class PhysWorld {
         // check if there is already a contact
         if (!contacts.containsKey(hash)) {
 
-            // check if these two fixtures overlap
-            if (fixture.overlaps(other, mtv)) {
+            PhysContact contact = fixture.overlaps(other);
 
-                // create the contact
-                PhysContact contact = new PhysContact(fixture, other, mtv.normal, mtv.depth);
+            // check if these two fixtures overlap
+            if (contact != null) {
 
                 // register a new contact
                 this.contacts.put(hash, contact);
@@ -65,8 +63,19 @@ public class PhysWorld {
             body = bodyB;
         }
 
+        // use the velocity and normal to calculate the direction
+        float directionX = ((body.getVelocity().x > 0 && contact.getNormal().x > 0)
+                            || (body.getVelocity().x < 0 && contact.getNormal().x < 0)) ? -1 : 1;
+
+        float directionY = ((body.getVelocity().y > 0 && contact.getNormal().y > 0)
+                || (body.getVelocity().y < 0 && contact.getNormal().y < 0)) ? -1 : 1;
+
         // calculate our adjusted positions
-        newPosition.set(contact.getNormal()).scl(contact.getDepth()).add(body.getX(), body.getY());
+        newPosition.set(contact.getNormal());
+        newPosition.x *= directionX;
+        newPosition.y *= directionY;
+        newPosition.scl(contact.getDepth());
+        newPosition.add(body.getX(), body.getY());
         body.setPosition(newPosition);
 
         // update the box2D body which corresponds to this body

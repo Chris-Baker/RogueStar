@@ -1,6 +1,6 @@
 package com.base2.roguestar.phys2d;
 
-import com.badlogic.gdx.math.Shape2D;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
@@ -19,7 +19,7 @@ public class PhysBody {
         return fixtures;
     }
 
-    public PhysFixture createFixture(Shape2D shape) {
+    public PhysFixture createFixture(Polygon shape) {
 
         PhysFixture fixture = new PhysFixture(this);
         fixture.setShape(shape);

@@ -111,11 +111,11 @@ public class PhysicsManager implements EventSubscriber {
 
                     if (fixture.getUserData() instanceof PhysFixture) {
                         // get phys fixture from the box2d fixture
-                        PhysFixture physFixture = (PhysFixture) fixture.getUserData();
+                        PhysFixture other = (PhysFixture) fixture.getUserData();
 
                         // check for any overlaps
                         for (int j = 0, m = physBody.getFixtures().size; j < m; j += 1) {
-                            PhysFixture other = physBody.getFixtures().get(j);
+                            PhysFixture physFixture = physBody.getFixtures().get(j);
                             physWorld.overlaps(physFixture, other);
                         }
                     }

@@ -19,6 +19,7 @@ import com.base2.roguestar.game.GameManager;
 import com.base2.roguestar.phys2d.PhysBody;
 import com.base2.roguestar.phys2d.PhysBodyType;
 import com.base2.roguestar.phys2d.PhysFixture;
+import com.base2.roguestar.phys2d.ShapeFactory;
 import com.base2.roguestar.physics.PhysicsManager;
 import com.base2.roguestar.utils.Locator;
 
@@ -107,13 +108,11 @@ public class EntityBuilder {
         physBody.setType(PhysBodyType.KINEMATIC);
         physBody.setUserData(body);
 
-        Rectangle rectangle2D = new Rectangle();
-        rectangle2D.setSize(1, 2);
+        Polygon rectangle2D = ShapeFactory.getRectangle(1, 2);
         PhysFixture physRectangleFixture = physBody.createFixture(rectangle2D);
         physRectangleFixture.setOffset(-0.5f, -1f);
 
-        Circle circle2D = new Circle();
-        circle2D.setRadius(0.5f);
+        Polygon circle2D = ShapeFactory.getRegularPolygon(0.5f, 6);
         PhysFixture physCircleFixture = physBody.createFixture(circle2D);
         physCircleFixture.setOffset(0f, -1f);
 
