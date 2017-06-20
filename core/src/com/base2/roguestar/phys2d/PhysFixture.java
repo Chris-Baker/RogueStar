@@ -8,16 +8,8 @@ public class PhysFixture {
     private Polygon shape;
     private Vector2 offset;
 
-    // tmp objects for overlap checks
-    private float[] rectangleVerticesA = new float[8];
-    private float[] rectangleVerticesB = new float[8];
-    private Vector2 start = new Vector2();
-    private Vector2 end = new Vector2();
-    private Vector2 center = new Vector2();
-
-    // tmp objects for collision response
+    // tmp object for collision response
     private Intersector.MinimumTranslationVector mtv = new Intersector.MinimumTranslationVector();
-    private Vector2 displacement = new Vector2();
 
     protected PhysFixture(PhysBody body) {
         this.body = body;
@@ -34,8 +26,6 @@ public class PhysFixture {
 
     public void setShape(Polygon shape) {
         this.shape = shape;
-        this.offset.x += shape.getX();
-        this.offset.y += shape.getY();
     }
 
     public float getX() {

@@ -43,7 +43,7 @@ public class PlayScreen implements Screen {
     public void render(float delta) {
         //mapRenderer.render(game.camera);
         physicsRenderer.render(physics.getWorld(), this.camera);
-        physDebugRenderer.render(physics.getPhysWorld(), this.camera, Config.PIXELS_PER_METER);
+        //physDebugRenderer.render(physics.getPhysWorld(), this.camera, Config.PIXELS_PER_METER);
     }
 
     @Override

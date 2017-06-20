@@ -1,7 +1,6 @@
 package com.base2.roguestar.phys2d;
 
 import com.badlogic.gdx.math.Polygon;
-import com.badlogic.gdx.math.Rectangle;
 
 public class ShapeFactory {
 
@@ -32,6 +31,13 @@ public class ShapeFactory {
         return polygon;
     }
 
+    /**
+     * Get a rectangle polygon with the given width and height.
+     *
+     * @param width the polygon width
+     * @param height the polygon height
+     * @return a rectangular polygon with the given width and height.
+     */
     public static Polygon getRectangle(float width, float height) {
 
         float x = 0;
