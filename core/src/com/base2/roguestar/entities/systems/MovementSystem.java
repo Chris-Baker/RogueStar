@@ -63,12 +63,12 @@ public class MovementSystem extends IteratingSystem {
         }
 
         // gravity
-//        if (!p.isGrounded) {
-//            float gravity = -2;
-//            physBody.setVelocity(physBody.getVelocity().x, (physBody.getVelocity().y += gravity) * deltaTime);
-//            physBody.setPosition(physBody.getX(), y + (gravity * deltaTime));
-//            body.setTransform(physBody.getX(), physBody.getY(), angle);
-//        }
+        if (!p.isGrounded) {
+            float gravity = -2;
+            physBody.setVelocity(physBody.getVelocity().x, (physBody.getVelocity().y += gravity) * deltaTime);
+            physBody.setPosition(physBody.getX(), y + (gravity * deltaTime));
+            body.setTransform(physBody.getX(), physBody.getY(), angle);
+        }
 
         // jump, but only when grounded
         if (controller.jump) {

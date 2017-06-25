@@ -63,19 +63,18 @@ public class PhysWorld {
         }
 
         // use the velocity and normal to calculate the direction
+        // TODO swap this for ((d.set(a.pos).sub(b.pos)).dot(mtd)) < 0 then mtd.scl(-1)
         float directionX = ((body.getVelocity().x > 0 && contact.getNormal().x > 0)
                             || (body.getVelocity().x < 0 && contact.getNormal().x < 0)) ? -1 : 1;
-
-        float directionY = ((body.getVelocity().y > 0 && contact.getNormal().y > 0)
-                || (body.getVelocity().y < 0 && contact.getNormal().y < 0)) ? -1 : 1;
 
         // calculate our adjusted positions
         newPosition.set(contact.getNormal());
         newPosition.x *= directionX;
-        newPosition.y *= directionY;
         newPosition.scl(contact.getDepth());
         newPosition.add(body.getX(), body.getY());
         body.setPosition(newPosition);
+
+        System.out.println(contact.getNormal());
 
         // update the box2D body which corresponds to this body
         Body b2dBody = (Body) body.getUserData();

@@ -51,7 +51,7 @@ public class PhysFixture {
     }
 
     public PhysContact overlaps(PhysFixture other) {
-        boolean overlaps = Intersector.overlapConvexPolygons(shape, other.getShape(), mtv);
+        boolean overlaps = PhysIntersector.overlapConvexPolygons(shape, other.getShape(), mtv);
         PhysContact contact = (overlaps) ? new PhysContact(this, other, mtv.normal, mtv.depth) : null;
         return contact;
     }
