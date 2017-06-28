@@ -53,7 +53,7 @@ public class PhysWorld {
             return;
         }
 
-        PhysBody body = null;
+        PhysBody body;
 
         if (bodyA.getType() == PhysBodyType.KINEMATIC) {
             body = bodyA;
@@ -74,7 +74,7 @@ public class PhysWorld {
         newPosition.add(body.getX(), body.getY());
         body.setPosition(newPosition);
 
-        System.out.println(contact.getNormal());
+        //System.out.println(contact.getNormal());
 
         // update the box2D body which corresponds to this body
         Body b2dBody = (Body) body.getUserData();
