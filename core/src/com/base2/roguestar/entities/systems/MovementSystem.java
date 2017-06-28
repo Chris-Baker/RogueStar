@@ -48,33 +48,31 @@ public class MovementSystem extends IteratingSystem {
 
         // reset horizontal velocity
         physBody.setVelocity(0, physBody.getVelocity().y);
+
         // move left
         if (controller.moveLeft && !controller.moveRight) {
-            physBody.setVelocity((physBody.getVelocity().x -= runSpeed) * deltaTime, physBody.getVelocity().y);
-            physBody.setPosition(x - (runSpeed * deltaTime), y);
-            body.setTransform(physBody.getX(), physBody.getY(), angle);
+            physBody.setVelocity(-runSpeed, physBody.getVelocity().y);
         }
 
         // move right
         if (controller.moveRight && !controller.moveLeft) {
-            physBody.setVelocity((physBody.getVelocity().x += runSpeed) * deltaTime, physBody.getVelocity().y);
-            physBody.setPosition(x + (runSpeed * deltaTime), y);
-            body.setTransform(physBody.getX(), physBody.getY(), angle);
+            physBody.setVelocity(runSpeed, physBody.getVelocity().y);
         }
 
         // gravity
         if (!p.isGrounded) {
-            float gravity = -2;
-            physBody.setVelocity(physBody.getVelocity().x, (physBody.getVelocity().y += gravity) * deltaTime);
-            physBody.setPosition(physBody.getX(), y + (gravity * deltaTime));
-            body.setTransform(physBody.getX(), physBody.getY(), angle);
+            float gravity = -5;
+            physBody.setVelocity(physBody.getVelocity().x, physBody.getVelocity().y + (gravity * deltaTime));
         }
 
         // jump, but only when grounded
         if (controller.jump) {
             controller.jump = false;
+            p.isGrounded = true;
             if (p.isGrounded) {
                 // do the jump
+                float jump = 20;
+                physBody.setVelocity(physBody.getVelocity().x, jump);
                 p.isGrounded = false;
             }
         }

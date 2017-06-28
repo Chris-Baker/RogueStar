@@ -88,6 +88,9 @@ public class PhysicsManager implements EventSubscriber {
             iterations++;
         }
 
+        // step phys2D physics simulation
+        this.physWorld.step(delta);
+
         // collisions for phys2D using box2D AABB
         for (Entity entity: entities.getEntitiesFor(Family.all(CharacterComponent.class).get())) {
 

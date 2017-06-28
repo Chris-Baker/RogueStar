@@ -23,6 +23,26 @@ public class PhysWorld {
         return body;
     }
 
+    public void step(float deltaTime) {
+
+        for (PhysBody body: bodies) {
+
+            if (body.getType() == PhysBodyType.STATIC) {
+                continue;
+            }
+
+            // integrate the body
+            Vector2 v = body.getVelocity();
+            float x = body.getX();
+            float y = body.getY();
+            body.setPosition(x + (v.x * deltaTime), y + (v.y * deltaTime));
+
+            // update the box2D body which corresponds to this body
+            Body b2dBody = (Body) body.getUserData();
+            b2dBody.setTransform(body.getX(), body.getY(), b2dBody.getAngle());
+        }
+    }
+
     public void overlaps(PhysFixture fixture, PhysFixture other) {
 
         int hash = fixture.hashCode() ^ other.hashCode();
