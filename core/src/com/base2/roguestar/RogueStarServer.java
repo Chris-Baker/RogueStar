@@ -121,7 +121,7 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 			server.start();
 			server.bind(54555, 54777);
 
-			server.addListener(new Listener.LagListener(200, 200, new Listener() {
+			server.addListener(new Listener.LagListener(22, 22, new Listener() {
 				public void received (Connection connection, Object object) {
 
 					if (object instanceof Ping) {
@@ -220,7 +220,7 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 				// map is loaded
 
 				// load static collision bodies
-				CollisionLoader.load(maps.getMap(), physics.getWorld());
+				CollisionLoader.load(maps.getMap(), physics.getWorld(), physics.getPhysWorld());
 
 				// this loader should send each entity to the client for it to load
 				maps.loadEntities();
@@ -235,6 +235,7 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 			case PLAYING:
 
 				// update managers
+				this.physics.preUpdate();
 				this.entities.update(deltaTime);
 				this.physics.update(deltaTime);
 
@@ -256,11 +257,14 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 						CharacterComponent cc = physicsMapper.get(entity);
 						Body body = cc.body;
 						PhysicsBodySnapshot bodySnapshot = new PhysicsBodySnapshot(body, entities.getUUID(entity));
+						PhysicsBodySnapshot PhysicsBodySnapshot = this.physics.getPreviousSnapshot(entities.getUUID(entity));
 
-						PhysicsBodySnapshotMessage response = new PhysicsBodySnapshotMessage();
-						response.timestamp = TimeUtils.nanoTime();
-						response.snapshot = bodySnapshot;
-						server.sendToAllUDP(response);
+						if (bodySnapshot.isChanged(PhysicsBodySnapshot)) {
+							PhysicsBodySnapshotMessage response = new PhysicsBodySnapshotMessage();
+							response.timestamp = TimeUtils.nanoTime();
+							response.snapshot = bodySnapshot;
+							server.sendToAllUDP(response);
+						}
 					}
 				}
 

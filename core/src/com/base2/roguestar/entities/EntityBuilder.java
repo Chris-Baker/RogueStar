@@ -3,8 +3,12 @@ package com.base2.roguestar.entities;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.base2.roguestar.controllers.CharacterControllerSnapshot;
 import com.base2.roguestar.controllers.KeyboardController;
 import com.base2.roguestar.controllers.NetworkController;
@@ -12,6 +16,10 @@ import com.base2.roguestar.entities.components.*;
 import com.base2.roguestar.events.EventManager;
 import com.base2.roguestar.events.messages.EntityCreatedEvent;
 import com.base2.roguestar.game.GameManager;
+import com.base2.roguestar.phys2d.PhysBody;
+import com.base2.roguestar.phys2d.PhysBodyType;
+import com.base2.roguestar.phys2d.PhysFixture;
+import com.base2.roguestar.phys2d.ShapeFactory;
 import com.base2.roguestar.physics.PhysicsManager;
 import com.base2.roguestar.utils.Locator;
 
@@ -71,32 +79,48 @@ public class EntityBuilder {
         // Physics component
         CharacterComponent pc = entities.createComponent(CharacterComponent.class);
 
+        // create our kinematic body for handling position updates and character controls
         BodyDef def = new BodyDef();
-        def.type = BodyDef.BodyType.DynamicBody;
-        //def.type = BodyDef.BodyType.KinematicBody;
+        def.type = BodyDef.BodyType.KinematicBody;
         def.fixedRotation = true;
         Body body = physics.getWorld().createBody(def);
 
         PolygonShape poly = new PolygonShape();
         poly.setAsBox(0.5f, 1f);
         Fixture playerPhysicsFixture = body.createFixture(poly, 1);
+        playerPhysicsFixture.setSensor(true);
         poly.dispose();
 
         CircleShape circle = new CircleShape();
         circle.setRadius(0.5f);
         circle.setPosition(new Vector2(0, -1f));
         Fixture playerSensorFixture = body.createFixture(circle, 0);
+        playerSensorFixture.setSensor(true);
         circle.dispose();
 
         body.setBullet(true);
-
         body.setTransform(x, y, angle);
-
         body.setUserData(e);
 
+        // create our Phys2D body
+        PhysBody physBody = physics.getPhysWorld().createBody();
+        physBody.setPosition(x, y);
+        physBody.setType(PhysBodyType.KINEMATIC);
+        physBody.setUserData(body);
+
+        Polygon rectangle2D = ShapeFactory.getRectangle(1, 2);
+        PhysFixture physRectangleFixture = physBody.createFixture(rectangle2D);
+        physRectangleFixture.setOffset(-0.5f, -1f);
+
+        Polygon circle2D = ShapeFactory.getRegularPolygon(0.5f, 6);
+        PhysFixture physCircleFixture = physBody.createFixture(circle2D);
+        physCircleFixture.setOffset(0f, -1f);
+
+        // add out physics objects to the character controller component
         pc.body = body;
         pc.physicsFixture = playerPhysicsFixture;
         pc.sensorFixture = playerSensorFixture;
+        pc.physBody = physBody;
         e.add(pc);
 
         // player keyboard controller
@@ -122,7 +146,7 @@ public class EntityBuilder {
 
         // player run speed
         RunSpeedComponent rc = entities.createComponent(RunSpeedComponent.class);
-        rc.runSpeed = 750;
+        rc.runSpeed = 15;
         e.add(rc);
 
 

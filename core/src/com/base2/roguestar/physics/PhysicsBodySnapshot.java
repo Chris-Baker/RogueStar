@@ -54,6 +54,22 @@ public class PhysicsBodySnapshot {
         this.angle += delta.angle;
     }
 
+    public boolean isChanged(PhysicsBodySnapshot other) {
+
+        if (other == null) {
+            return true;
+        }
+
+        float deltaX = x - other.x;
+        float deltaY = y - other.y;
+        float deltaVx = vx - other.vx;
+        float deltaVy = vy - other.vy;
+        float deltaAngularVelocity = angularVelocity - other.angularVelocity;
+        float deltaAngle = angle - other.angle;
+
+        return deltaX + deltaY + deltaVx + deltaVy + deltaAngularVelocity + deltaAngle != 0;
+    }
+
     public UUID getUid() {
         return UUID.fromString(uid);
     }

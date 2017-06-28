@@ -5,15 +5,19 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.physics.box2d.QueryCallback;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.TimeUtils;
 import com.base2.roguestar.entities.EntityManager;
 import com.base2.roguestar.entities.components.CharacterComponent;
 import com.base2.roguestar.events.Event;
 import com.base2.roguestar.events.EventSubscriber;
-import com.base2.roguestar.events.messages.UnverifiedPhysicsBodySnapshotEvent;
 import com.base2.roguestar.events.messages.VerifiedPhysicsBodySnapshotEvent;
+import com.base2.roguestar.phys2d.AABB;
+import com.base2.roguestar.phys2d.PhysBody;
+import com.base2.roguestar.phys2d.PhysFixture;
+import com.base2.roguestar.phys2d.PhysWorld;
 import com.base2.roguestar.utils.Config;
 import com.base2.roguestar.utils.Locator;
 
@@ -32,8 +36,10 @@ public class PhysicsManager implements EventSubscriber {
     private final int VELOCITY_ITERATIONS = 8;
     private final int POSITION_ITERATIONS = 3;
 
+    private PhysWorld physWorld;
     private World world;
     private final Array<Body> deathRow = new Array<Body>();
+    final Array<Fixture> fixtures = new Array<Fixture>();
 
     private final Map<UUID, PhysicsBodySnapshot> previousFrame = new HashMap<UUID, PhysicsBodySnapshot>();
     private final Map<UUID, PhysicsBodySnapshot> verifiedSnapshots = new HashMap<UUID, PhysicsBodySnapshot>();
@@ -48,6 +54,7 @@ public class PhysicsManager implements EventSubscriber {
         deathRow.clear();
         physicsMapper = ComponentMapper.getFor(CharacterComponent.class);
         entities = Locator.getEntityManager();
+        physWorld = new PhysWorld();
     }
 
     public void preUpdate() {
@@ -80,6 +87,39 @@ public class PhysicsManager implements EventSubscriber {
             accum -= Config.PHYSICS_TIME_STEP;
             iterations++;
         }
+
+        // collisions for phys2D using box2D AABB
+        for (Entity entity: entities.getEntitiesFor(Family.all(CharacterComponent.class).get())) {
+
+            UUID uid = entities.getUUID(entity);
+            CharacterComponent cc = physicsMapper.get(entity);
+            Body body = cc.body;
+            PhysBody physBody = cc.physBody;
+
+            // get our bounding box from the phys2D body so that we can query the Box2D AABB
+            // and find any overlapping fixtures
+            AABB aabb = physBody.getAABB();
+            Array<Fixture> fixtures = getObjectsInRange(aabb.getMinX(), aabb.getMinY(), aabb.getMaxX(), aabb.getMaxY());
+
+            for (int i = 0, n = fixtures.size; i < n; i += 1) {
+
+                Fixture fixture = fixtures.get(i);
+
+                if (!body.getFixtureList().contains(fixture, false)) {
+
+                    if (fixture.getUserData() instanceof PhysFixture) {
+                        // get phys fixture from the box2d fixture
+                        PhysFixture other = (PhysFixture) fixture.getUserData();
+
+                        // check for any overlaps
+                        for (int j = 0, m = physBody.getFixtures().size; j < m; j += 1) {
+                            PhysFixture physFixture = physBody.getFixtures().get(j);
+                            physWorld.overlaps(physFixture, other);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public void postUpdate() {
@@ -87,7 +127,9 @@ public class PhysicsManager implements EventSubscriber {
         for (Entity entity: entities.getEntitiesFor(Family.all(CharacterComponent.class).get())) {
 
             UUID uid = entities.getUUID(entity);
-            Body body = physicsMapper.get(entity).body;
+            CharacterComponent cc = physicsMapper.get(entity);
+            Body body = cc.body;
+            PhysBody physBody = cc.physBody;
 
             // create an unverified snapshot delta for this frame
             if (body.isAwake() || true) {
@@ -105,8 +147,6 @@ public class PhysicsManager implements EventSubscriber {
 
                 PhysicsBodySnapshot verifiedSnapshot = verifiedSnapshots.remove(uid);
 
-                System.out.println("verified x: " + verifiedSnapshot.getX() + ", y: " + verifiedSnapshot.getY());
-
                 // if we have any client side state updates not verified by the server then we can apply
                 // those deltas to the verified state given to us by the server
                 if (unverifiedSnapshots.containsKey(uid)) {
@@ -116,25 +156,35 @@ public class PhysicsManager implements EventSubscriber {
 
                         if (unverifiedSnapshot.getTimestamp() <= verifiedSnapshot.getTimestamp()) {
                             unverifiedSnapshots.get(uid).removeIndex(index);
-                            //System.out.println("Dropped old unverified update");
                         }
                         else {
                             verifiedSnapshot.applyDelta(unverifiedSnapshot);
-//                            System.out.println("unverified time: " + unverifiedSnapshot.getTimestamp());
-//                            System.out.println("verified time  : " + verifiedSnapshot.getTimestamp());
-//                            System.out.println("now time       : " + TimeUtils.nanoTime());
-//                            System.out.println("x: " + unverifiedSnapshot.getX() + ", y: " + unverifiedSnapshot.getY());
                             index += 1;
                         }
                     }
                 }
 
                 // update our body with the state form the server
-                body.setTransform(verifiedSnapshot.getX(), verifiedSnapshot.getY(), verifiedSnapshot.getAngle());
+                body.setTransform(body.getPosition().lerp(new Vector2(verifiedSnapshot.getX(), verifiedSnapshot.getY()), 0.5f), verifiedSnapshot.getAngle());
                 body.setLinearVelocity(verifiedSnapshot.getVX(), verifiedSnapshot.getVY());
                 body.setAngularVelocity(verifiedSnapshot.getAngularVelocity());
+
+                // update our phys body to match our box2d body
+                physBody.setPosition(body.getPosition().x, body.getPosition().y);
             }
         }
+    }
+
+    private Array<Fixture> getObjectsInRange(float minX, float minY, float maxX, float maxY) {
+        fixtures.clear();
+        world.QueryAABB(new QueryCallback() {
+            @Override
+            public boolean reportFixture(Fixture fixture) {
+                fixtures.add(fixture);
+                return true;
+            }
+        }, minX, minY, maxX, maxY);
+        return fixtures;
     }
 
     public void removeBody(Body b) {
@@ -143,6 +193,10 @@ public class PhysicsManager implements EventSubscriber {
 
     public World getWorld() {
         return this.world;
+    }
+
+    public PhysWorld getPhysWorld() {
+        return physWorld;
     }
 
     public void dispose() {
@@ -157,15 +211,9 @@ public class PhysicsManager implements EventSubscriber {
             PhysicsBodySnapshot snapshot = verifiedPhysicsBodySnapshotEvent.snapshot;
             verifiedSnapshots.put(snapshot.getUid(), snapshot);
         }
-//        else if (event instanceof UnverifiedPhysicsBodySnapshotEvent) {
-//            UnverifiedPhysicsBodySnapshotEvent unverifiedPhysicsBodySnapshotEvent = (UnverifiedPhysicsBodySnapshotEvent)event;
-//            PhysicsBodySnapshot snapshot = unverifiedPhysicsBodySnapshotEvent.snapshot;
-//            UUID uid = snapshot.getUid();
-//
-//            if (!unverifiedSnapshots.containsKey(uid)) {
-//                unverifiedSnapshots.put(uid, new Array<PhysicsBodySnapshot>());
-//            }
-//            unverifiedSnapshots.get(uid).add(snapshot);
-//        }
+    }
+
+    public PhysicsBodySnapshot getPreviousSnapshot(UUID uid) {
+        return this.previousFrame.get(uid);
     }
 }
