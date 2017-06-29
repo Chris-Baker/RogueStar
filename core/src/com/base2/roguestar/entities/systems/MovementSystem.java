@@ -39,12 +39,8 @@ public class MovementSystem extends IteratingSystem {
         RunSpeedComponent r = rm.get(entity);
 
         CharacterController controller = c.controller;
-        Body body = p.body;
         PhysBody physBody = p.physBody;
         int runSpeed = r.runSpeed;
-        float angle = body.getAngle();
-        float x = physBody.getX();
-        float y = physBody.getY();
 
         // reset horizontal velocity
         physBody.setVelocity(0, physBody.getVelocity().y);
@@ -59,19 +55,13 @@ public class MovementSystem extends IteratingSystem {
             physBody.setVelocity(runSpeed, physBody.getVelocity().y);
         }
 
-        // gravity
-        if (!p.isGrounded) {
-            float gravity = -5;
-            physBody.setVelocity(physBody.getVelocity().x, physBody.getVelocity().y + (gravity * deltaTime));
-        }
-
         // jump, but only when grounded
         if (controller.jump) {
             controller.jump = false;
-            p.isGrounded = true;
-            if (p.isGrounded) {
+
+            if (physBody.isGrounded()) {
                 // do the jump
-                float jump = 20;
+                float jump = 7;
                 physBody.setVelocity(physBody.getVelocity().x, jump);
                 p.isGrounded = false;
             }

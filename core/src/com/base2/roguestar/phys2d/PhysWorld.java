@@ -1,11 +1,15 @@
 package com.base2.roguestar.phys2d;
 
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 
 public class PhysWorld {
+
+    // gravity
+    private float gravity = -10;
 
     // temp objects for collision repsonse
     private Vector2 newPosition = new Vector2();
@@ -31,8 +35,14 @@ public class PhysWorld {
                 continue;
             }
 
-            // integrate the body
             Vector2 v = body.getVelocity();
+
+            // gravity
+            body.setVelocity(v.x, Math.max(v.y + (gravity * deltaTime), gravity));
+
+            body.setGrounded(false);
+
+            // integrate the body
             float x = body.getX();
             float y = body.getY();
             body.setPosition(x + (v.x * deltaTime), y + (v.y * deltaTime));
@@ -87,9 +97,17 @@ public class PhysWorld {
         float directionX = ((body.getVelocity().x > 0 && contact.getNormal().x > 0)
                             || (body.getVelocity().x < 0 && contact.getNormal().x < 0)) ? -1 : 1;
 
+//        float directionY = ((body.getVelocity().y > 0 && contact.getNormal().y > 0)
+//                || (body.getVelocity().y < 0 && contact.getNormal().y < 0)) ? -1 : 1;
+
+        if (contact.getNormal().y > 0.66667) {
+            body.setGrounded(true);
+        }
+
         // calculate our adjusted positions
         newPosition.set(contact.getNormal());
         newPosition.x *= directionX;
+        //newPosition.y *= directionY;
         newPosition.scl(contact.getDepth());
         newPosition.add(body.getX(), body.getY());
         body.setPosition(newPosition);

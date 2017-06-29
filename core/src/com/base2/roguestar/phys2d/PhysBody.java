@@ -12,6 +12,7 @@ public class PhysBody {
     private Vector2 velocity = new Vector2();
     private AABB aabb = new AABB();
     private Object userData;
+    private boolean isGrounded;
 
     protected PhysBody() {}
 
@@ -87,5 +88,13 @@ public class PhysBody {
 
     public void setVelocity(Vector2 velocity) {
         this.velocity.set(velocity);
+    }
+
+    public boolean isGrounded() {
+        return isGrounded;
+    }
+
+    public void setGrounded(boolean grounded) {
+        isGrounded = grounded;
     }
 }
