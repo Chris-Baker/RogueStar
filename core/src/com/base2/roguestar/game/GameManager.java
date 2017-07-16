@@ -1,6 +1,5 @@
 package com.base2.roguestar.game;
 
-import com.base2.roguestar.RogueStarServer;
 import com.base2.roguestar.entities.EntityManager;
 import com.base2.roguestar.events.Event;
 import com.base2.roguestar.events.EventManager;

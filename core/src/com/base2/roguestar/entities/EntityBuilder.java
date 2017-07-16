@@ -4,7 +4,10 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.physics.bullet.collision.*;
+import com.badlogic.gdx.physics.bullet.dynamics.btKinematicCharacterController;
 import com.base2.roguestar.controllers.CharacterControllerSnapshot;
 import com.base2.roguestar.controllers.KeyboardController;
 import com.base2.roguestar.controllers.NetworkController;
@@ -71,32 +74,30 @@ public class EntityBuilder {
         // Physics component
         CharacterComponent pc = entities.createComponent(CharacterComponent.class);
 
-        BodyDef def = new BodyDef();
-        def.type = BodyDef.BodyType.DynamicBody;
-        //def.type = BodyDef.BodyType.KinematicBody;
-        def.fixedRotation = true;
-        Body body = physics.getWorld().createBody(def);
+        // https://github.com/macbury/ForgE/blob/master/core/src/macbury/forge/components/CharacterComponent.java
 
-        PolygonShape poly = new PolygonShape();
-        poly.setAsBox(0.5f, 1f);
-        Fixture playerPhysicsFixture = body.createFixture(poly, 1);
-        poly.dispose();
+        float stepHeight = 1.0f;
+        float jumpSpeed = 0.1f;
+        float maxJumpHeight = 2.0f;
+        float maxSlope = 0.78f;
 
-        CircleShape circle = new CircleShape();
-        circle.setRadius(0.5f);
-        circle.setPosition(new Vector2(0, -1f));
-        Fixture playerSensorFixture = body.createFixture(circle, 0);
-        circle.dispose();
+        btCollisionShape collisionShape = new btCapsuleShape(.25f, 1f);
 
-        body.setBullet(true);
+        btPairCachingGhostObject ghostObject = new btPairCachingGhostObject();
+        ghostObject.setCollisionShape(collisionShape);
+        ghostObject.setCollisionFlags(btCollisionObject.CollisionFlags.CF_CHARACTER_OBJECT);
 
-        body.setTransform(x, y, angle);
 
-        body.setUserData(e);
 
-        pc.body = body;
-        pc.physicsFixture = playerPhysicsFixture;
-        pc.sensorFixture = playerSensorFixture;
+        btKinematicCharacterController characterController = new btKinematicCharacterController(ghostObject, (btConvexShape) collisionShape, stepHeight);
+        characterController.setJumpSpeed(jumpSpeed);
+        characterController.setMaxJumpHeight(maxJumpHeight);
+        characterController.setMaxSlope(maxSlope);
+
+        physics.addCharacter(characterController);
+
+        pc.character = characterController;
+
         e.add(pc);
 
         // player keyboard controller

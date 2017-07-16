@@ -209,7 +209,7 @@ public class RogueStarClient extends Game implements EventSubscriber {
 				maps.load(game.getMap());
 
 				// load static collision bodies
-				CollisionLoader.load(maps.getMap(), physics.getWorld());
+				CollisionLoader.load(maps.getMap(), physics);
 
 				// server sends entities to load
 

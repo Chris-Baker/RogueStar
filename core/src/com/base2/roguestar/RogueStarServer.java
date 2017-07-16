@@ -220,7 +220,7 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 				// map is loaded
 
 				// load static collision bodies
-				CollisionLoader.load(maps.getMap(), physics.getWorld());
+				CollisionLoader.load(maps.getMap(), physics);
 
 				// this loader should send each entity to the client for it to load
 				maps.loadEntities();
@@ -248,21 +248,21 @@ public class RogueStarServer extends ApplicationAdapter implements EventSubscrib
 				// we can compare the properties of existing ones and if thee are changes we also include them in the update
 
 				// send snapshot object
-				if (accum >= NETWORK_UPDATE_RATE) {
-					accum = 0;
-
-					// iterate over our physics components, create and send physics snapshots for each body
-					for (Entity entity: entities.getEntitiesFor(Family.all(CharacterComponent.class).get())) {
-						CharacterComponent cc = physicsMapper.get(entity);
-						Body body = cc.body;
-						PhysicsBodySnapshot bodySnapshot = new PhysicsBodySnapshot(body, entities.getUUID(entity));
-
-						PhysicsBodySnapshotMessage response = new PhysicsBodySnapshotMessage();
-						response.timestamp = TimeUtils.nanoTime();
-						response.snapshot = bodySnapshot;
-						server.sendToAllUDP(response);
-					}
-				}
+//				if (accum >= NETWORK_UPDATE_RATE) {
+//					accum = 0;
+//
+//					// iterate over our physics components, create and send physics snapshots for each body
+//					for (Entity entity: entities.getEntitiesFor(Family.all(CharacterComponent.class).get())) {
+//						CharacterComponent cc = physicsMapper.get(entity);
+//						Body body = cc.body;
+//						PhysicsBodySnapshot bodySnapshot = new PhysicsBodySnapshot(body, entities.getUUID(entity));
+//
+//						PhysicsBodySnapshotMessage response = new PhysicsBodySnapshotMessage();
+//						response.timestamp = TimeUtils.nanoTime();
+//						response.snapshot = bodySnapshot;
+//						server.sendToAllUDP(response);
+//					}
+//				}
 
 				break;
 
