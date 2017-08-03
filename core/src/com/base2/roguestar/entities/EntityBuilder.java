@@ -3,11 +3,7 @@ package com.base2.roguestar.entities;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.bullet.collision.*;
-import com.badlogic.gdx.physics.bullet.dynamics.btKinematicCharacterController;
 import com.base2.roguestar.controllers.CharacterControllerSnapshot;
 import com.base2.roguestar.controllers.KeyboardController;
 import com.base2.roguestar.controllers.NetworkController;
@@ -15,6 +11,7 @@ import com.base2.roguestar.entities.components.*;
 import com.base2.roguestar.events.EventManager;
 import com.base2.roguestar.events.messages.EntityCreatedEvent;
 import com.base2.roguestar.game.GameManager;
+import com.base2.roguestar.physics.Character;
 import com.base2.roguestar.physics.PhysicsManager;
 import com.base2.roguestar.utils.Locator;
 
@@ -74,8 +71,6 @@ public class EntityBuilder {
         // Physics component
         CharacterComponent pc = entities.createComponent(CharacterComponent.class);
 
-        // https://github.com/macbury/ForgE/blob/master/core/src/macbury/forge/components/CharacterComponent.java
-
         float stepHeight = 1.0f;
         float jumpSpeed = 0.1f;
         float maxJumpHeight = 2.0f;
@@ -83,20 +78,16 @@ public class EntityBuilder {
 
         btCollisionShape collisionShape = new btCapsuleShape(.25f, 1f);
 
-        btPairCachingGhostObject ghostObject = new btPairCachingGhostObject();
-        ghostObject.setCollisionShape(collisionShape);
-        ghostObject.setCollisionFlags(btCollisionObject.CollisionFlags.CF_CHARACTER_OBJECT);
+        Character character = new Character(collisionShape);
+        character.setStepHeight(stepHeight);
+        character.setJumpSpeed(jumpSpeed);
+        character.setMaxJumpHeight(maxJumpHeight);
+        character.setMaxSlope(maxSlope);
+        character.setTransform(x, y, angle);
 
+        physics.addBody(character);
 
-
-        btKinematicCharacterController characterController = new btKinematicCharacterController(ghostObject, (btConvexShape) collisionShape, stepHeight);
-        characterController.setJumpSpeed(jumpSpeed);
-        characterController.setMaxJumpHeight(maxJumpHeight);
-        characterController.setMaxSlope(maxSlope);
-
-        physics.addCharacter(characterController);
-
-        pc.character = characterController;
+        pc.character = character;
 
         e.add(pc);
 

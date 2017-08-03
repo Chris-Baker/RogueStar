@@ -1,7 +1,6 @@
 package com.base2.roguestar.physics;
 
 import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.collision.*;
 import com.badlogic.gdx.physics.bullet.dynamics.*;
@@ -23,18 +22,15 @@ public class PhysicsManager implements EventSubscriber {
     // for fixed time step simulation
     private float accum = 0;
     private int iterations = 0;
-    private final int NUM_SUBSTEPS = 5;
 
     private btCollisionConfiguration collisionConfig;
     private btDispatcher dispatcher;
     private GameContactListener contactListener;
     private btBroadphaseInterface broadphase;
-    private btDynamicsWorld world;
-    private btConstraintSolver constraintSolver;
+    private btCollisionWorld world;
 
-    private Array<btKinematicCharacterController> characters  = new Array<btKinematicCharacterController>();
-    private final Array<btRigidBody> bodies = new Array<btRigidBody>();
-    private final Array<btRigidBody> deathRow = new Array<btRigidBody>();
+    private final Array<Body> bodies = new Array<Body>();
+    private final Array<Body> deathRow = new Array<Body>();
 
     private final Map<UUID, PhysicsBodySnapshot> previousFrame = new HashMap<UUID, PhysicsBodySnapshot>();
     private final Map<UUID, PhysicsBodySnapshot> verifiedSnapshots = new HashMap<UUID, PhysicsBodySnapshot>();
@@ -50,9 +46,7 @@ public class PhysicsManager implements EventSubscriber {
         collisionConfig = new btDefaultCollisionConfiguration();
         dispatcher = new btCollisionDispatcher(collisionConfig);
         broadphase = new btDbvtBroadphase();
-        constraintSolver = new btSequentialImpulseConstraintSolver();
-        world = new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig);
-        world.setGravity(new Vector3(0, -25f, 0));
+        world = new btCollisionWorld(dispatcher, broadphase, collisionConfig);
         contactListener = new GameContactListener();
 
         deathRow.clear();
@@ -77,8 +71,8 @@ public class PhysicsManager implements EventSubscriber {
     public void update(float delta) {
 
         // remove any bodies from the world flagged for removal
-        for (btRigidBody b: deathRow) {
-            world.removeRigidBody(b);
+        for (Body b: deathRow) {
+            world.removeCollisionObject(b.getCollisionObject());
             bodies.removeValue(b, false);
             b.dispose();
         }
@@ -88,7 +82,8 @@ public class PhysicsManager implements EventSubscriber {
         accum += delta;
         iterations = 0;
         while (accum > Config.PHYSICS_TIME_STEP && iterations < Config.MAX_UPDATE_ITERATIONS) {
-            world.stepSimulation(Config.PHYSICS_TIME_STEP, NUM_SUBSTEPS, Config.PHYSICS_TIME_STEP);
+            // update bodies here
+            world.performDiscreteCollisionDetection();
             accum -= Config.PHYSICS_TIME_STEP;
             iterations++;
         }
@@ -149,17 +144,12 @@ public class PhysicsManager implements EventSubscriber {
 //        }
     }
 
-    public void addCharacter(btKinematicCharacterController character) {
-        world.addCharacter(character);
-        characters.add(character);
-    }
-
-    public void addBody(btRigidBody body) {
-        world.addRigidBody(body);
+    public void addBody(Body body) {
+        world.addCollisionObject(body.getCollisionObject());
         bodies.add(body);
     }
 
-    public btRigidBody getBody(int index) {
+    public Body getBody(int index) {
         return bodies.get(index);
     }
 
@@ -167,7 +157,7 @@ public class PhysicsManager implements EventSubscriber {
         return bodies.size;
     }
 
-    public void removeBody(btRigidBody b) {
+    public void removeBody(Body b) {
         deathRow.add(b);
     }
 

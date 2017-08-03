@@ -14,10 +14,6 @@ public class PhysicsRenderer {
     private ShapeRenderer shapeRenderer;
     private final Matrix4 combined = new Matrix4();
 
-    private final Matrix4 transform = new Matrix4();
-    private final Vector3 translation = new Vector3();
-    private final Quaternion rotation = new Quaternion();
-
     public void init() {
         shapeRenderer = new ShapeRenderer();
     }
@@ -32,16 +28,13 @@ public class PhysicsRenderer {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(0, 1, 0, 1);
         for (int i = 0, n = physics.getBodyCount(); i < n; i += 1) {
-            btRigidBody body = physics.getBody(i);
-            btCollisionShape shape = body.getCollisionShape();
+            Body body = physics.getBody(i);
+            btCollisionObject collisionObject = body.getCollisionObject();
+            btCollisionShape shape = collisionObject.getCollisionShape();
 
-            body.getWorldTransform(transform);
-            transform.getTranslation(translation);
-            transform.getRotation(rotation);
-
-            float x = translation.x;
-            float y = translation.y;
-            float angle = rotation.getAngleAround(Vector3.Z);
+            float x = body.getX();
+            float y = body.getY();
+            float angle = body.getRotation();
 
             shapeRenderer.identity();
 
