@@ -6,9 +6,9 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.box2d.Body;
 import com.base2.roguestar.entities.components.CameraComponent;
 import com.base2.roguestar.entities.components.CharacterComponent;
+import com.base2.roguestar.physics.Body;
 import com.base2.roguestar.utils.Config;
 
 /**
@@ -16,7 +16,6 @@ import com.base2.roguestar.utils.Config;
  */
 public class CameraSystem extends IteratingSystem {
 
-    //private ComponentMapper<CameraComponent> cm;
     private ComponentMapper<CharacterComponent> pm;
 
     private Vector3 target = new Vector3();
@@ -25,7 +24,6 @@ public class CameraSystem extends IteratingSystem {
     public CameraSystem() {
         super(Family.all(CameraComponent.class, CharacterComponent.class).get());
 
-        //cm = ComponentMapper.getFor(CameraComponent.class);
         pm = ComponentMapper.getFor(CharacterComponent.class);
     }
 
@@ -33,16 +31,13 @@ public class CameraSystem extends IteratingSystem {
     protected void processEntity(Entity entity, float deltaTime) {
 
         CharacterComponent p = pm.get(entity);
-        //CameraComponent c = cm.get(entity);
 
-//        Body body = p.body;
-//
-//        target.set(body.getPosition().x, body.getPosition().y, 0).scl(Config.PIXELS_PER_METER);
-//
-//        camera.position.lerp(target, 10 * deltaTime);
-//        camera.update();
+        Body body = p.character;
 
-        //System.out.println(body.getPosition().x + ", " + body.getPosition().y);
+        target.set(body.getX(), body.getY(), 0).scl(Config.PIXELS_PER_METER);
+
+        camera.position.lerp(target, 10 * deltaTime);
+        camera.update();
     }
     
     public void setCamera(OrthographicCamera camera) {
