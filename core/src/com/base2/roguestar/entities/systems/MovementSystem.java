@@ -8,23 +8,20 @@ import com.badlogic.gdx.math.Vector2;
 import com.base2.roguestar.controllers.CharacterController;
 import com.base2.roguestar.entities.components.ControllerComponent;
 import com.base2.roguestar.entities.components.CharacterComponent;
-import com.base2.roguestar.entities.components.RunSpeedComponent;
 import com.base2.roguestar.physics.Character;
 
 public class MovementSystem extends IteratingSystem {
 
     private ComponentMapper<ControllerComponent> cm;
     private ComponentMapper<CharacterComponent> pm;
-    private ComponentMapper<RunSpeedComponent> rm;
 
     private Vector2 velocity = new Vector2();
 
     public MovementSystem() {
-        super(Family.all(ControllerComponent.class, CharacterComponent.class, RunSpeedComponent.class).get());
+        super(Family.all(ControllerComponent.class, CharacterComponent.class).get());
 
         cm = ComponentMapper.getFor(ControllerComponent.class);
         pm = ComponentMapper.getFor(CharacterComponent.class);
-        rm = ComponentMapper.getFor(RunSpeedComponent.class);
     }
 
     @Override
@@ -32,7 +29,6 @@ public class MovementSystem extends IteratingSystem {
 
         CharacterComponent p = pm.get(entity);
         ControllerComponent c = cm.get(entity);
-        RunSpeedComponent r = rm.get(entity);
 
         CharacterController controller = c.controller;
         Character character = p.character;

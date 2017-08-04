@@ -9,6 +9,7 @@ public class Character extends Body {
     private float jumpSpeed;
     private float maxJumpHeight;
     private float maxSlope;
+    private float runSpeed;
 
     public Character(btCollisionShape collisionShape) {
         super(collisionShape);
@@ -20,6 +21,10 @@ public class Character extends Body {
 
     public void setJumpSpeed(float jumpSpeed) {
         this.jumpSpeed = jumpSpeed;
+    }
+
+    public void setRunSpeed(float runSpeed) {
+        this.runSpeed = runSpeed;
     }
 
     public void setMaxJumpHeight(float maxJumpHeight) {

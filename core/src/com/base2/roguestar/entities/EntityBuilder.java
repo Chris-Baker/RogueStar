@@ -73,6 +73,7 @@ public class EntityBuilder {
 
         float stepHeight = 1.0f;
         float jumpSpeed = 0.1f;
+        float runSpeed = 15.0f;
         float maxJumpHeight = 2.0f;
         float maxSlope = 0.78f;
 
@@ -81,6 +82,7 @@ public class EntityBuilder {
         Character character = new Character(collisionShape);
         character.setStepHeight(stepHeight);
         character.setJumpSpeed(jumpSpeed);
+        character.setRunSpeed(runSpeed);
         character.setMaxJumpHeight(maxJumpHeight);
         character.setMaxSlope(maxSlope);
         character.setTransform(x, y, angle);
@@ -111,12 +113,6 @@ public class EntityBuilder {
         }
 
         e.add(cc);
-
-        // player run speed
-        RunSpeedComponent rc = entities.createComponent(RunSpeedComponent.class);
-        rc.runSpeed = 750;
-        e.add(rc);
-
 
         // Player animation component
         // we want to get a texture pack of the animations
