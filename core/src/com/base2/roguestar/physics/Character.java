@@ -12,7 +12,7 @@ public class Character extends Body {
     private float runSpeed;
 
     public Character(btCollisionShape collisionShape) {
-        super(collisionShape);
+        super(collisionShape, Type.DYNAMIC);
     }
 
     public void setStepHeight(float stepHeight) {

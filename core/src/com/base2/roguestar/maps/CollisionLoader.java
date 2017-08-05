@@ -56,7 +56,7 @@ public class CollisionLoader {
                 continue;
             }
 
-            Body body = new Body(shape);
+            Body body = new Body(shape, Body.Type.STATIC);
             body.setTransform(translation, angle);
             body.translate(offset);
             physics.addBody(body);

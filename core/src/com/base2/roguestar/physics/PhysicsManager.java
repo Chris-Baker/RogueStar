@@ -19,6 +19,9 @@ import java.util.UUID;
 
 public class PhysicsManager implements EventSubscriber {
 
+    public static final float GRAVITY = -0.2f;
+    public static final float TERMINAL_VELOCITY = -54;
+
     // for fixed time step simulation
     private float accum = 0;
     private int iterations = 0;
@@ -82,11 +85,25 @@ public class PhysicsManager implements EventSubscriber {
         accum += delta;
         iterations = 0;
         while (accum > Config.PHYSICS_TIME_STEP && iterations < Config.MAX_UPDATE_ITERATIONS) {
-            // update bodies here
+            this.moveBodies(Config.PHYSICS_TIME_STEP);
             world.performDiscreteCollisionDetection();
+            this.resolveCollisions();
             accum -= Config.PHYSICS_TIME_STEP;
             iterations++;
         }
+    }
+
+    private void moveBodies(float delta) {
+
+        for (Body b: bodies) {
+            b.update(delta);
+        }
+    }
+
+    private void resolveCollisions() {
+
+
+
     }
 
     public void postUpdate() {
